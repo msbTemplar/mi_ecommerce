@@ -95,6 +95,8 @@ DATABASES = {
     }
 }
 """
+
+"""
 DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.sqlite3',
@@ -103,6 +105,20 @@ DATABASES = {
         'NAME':'railway',
         'USER':'postgres',
         'PASSWORD':os.environ.get('DB_PASSWORD_YO'),
+        'HOST':'monorail.proxy.rlwy.net',
+        'PORT':'28030',
+        
+    }
+}
+"""
+DATABASES = {
+    'default': {
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME':'railway',
+        'USER':'postgres',
+        'PASSWORD':os.environ['DB_PASSWORD_YO'],
         'HOST':'monorail.proxy.rlwy.net',
         'PORT':'28030',
         
