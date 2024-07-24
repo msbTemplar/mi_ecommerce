@@ -32,7 +32,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['miecommerce-production.up.railway.app', 'https://miecommerce-production.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://miecommerce-production.up.railway.app']
-
+#ALLOWED_HOSTS=[]
 
 # Application definition
 
