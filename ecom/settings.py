@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure--=z=4s5hha#r)m(2_m)ye^m#p)k*&*y&5f$9bu%!bxmynnr3#y
 DEBUG = True
 
 ALLOWED_HOSTS = ['miecommerce-production.up.railway.app', 'https://miecommerce-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['miecommerce-production.up.railway.app', 'https://miecommerce-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://miecommerce-production.up.railway.app']
 
 
 # Application definition
