@@ -1,0 +1,85 @@
+{% extends 'store_app/base.html' %}
+
+{% block content %}
+
+        <!-- Header-->
+        <header class="bg-dark py-5">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="text-center text-white">
+                    <h1 class="display-4 fw-bolder">Billing Info</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">Enter your oaymenet Info.......</p>
+                </div>
+            </div>
+        </header>
+        <!-- Section-->
+        <section class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 offset-md-3 mt-3 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                              Order Summary
+                            </div>
+                            <div class="card-body">
+                                {% for product in cart_products %}
+                                    {{product.name}}: 
+                                    {% if product.is_sale %}
+                                    $ {{ product.sale_price }}
+                                    {% else %}
+                                    $ {{ product.price }}
+                                    {% endif %}
+                                    <br>
+                                    Quantity:
+                                    {% for key, value in quantities.items %}
+                                          {% if key == product.id|slugify %}
+                                          {{ value }}
+                                          {% endif %}
+                                      {% endfor %}
+                                      <br><br>
+                                {% endfor %}
+                              
+                                <strong>Total:  $ {{totals}} </strong>
+                                <br>
+                                <a href="{% url 'cart_summary' %}" class="btn btn-outline-primary mt-3">Update Items</a>
+                            </div>
+                          </div>
+                          <div class="card mt-3">
+                            <div class="card-header">
+                              Shipping Info
+                            </div>
+                            <div class="card-body">
+                             
+                              Name: {{ shipping_info.shipping_full_name }} <br>
+                              Email: {{ shipping_info.shipping_email }} <br>
+                              Address 1: {{ shipping_info.shipping_address1 }} <br>
+                              Address 2: {{ shipping_info.shipping_address2 }} <br>
+                              City: {{ shipping_info.shipping_city }} <br>
+                              State: {{ shipping_info.shipping_state }} <br>
+                              ZipCode: {{ shipping_info.shipping_zipcode }} <br>
+                              Country: {{ shipping_info.shipping_country }} <br>
+                              <a href="{% url 'checkout' %}" class="btn btn-warning mt-3 w-100">Update Shipping</a>
+                            </div>
+                          </div>
+
+                          <br><br>
+                          <div class="card mt-3">
+                            <div class="card-header">
+                              Billing Info
+                            </div>
+                            <div class="card-body">
+                             <form action="{% url 'process_order' %}" method="post">
+                              {% csrf_token %}
+                                {{billing_form.as_p}}
+                              
+                            </div>
+                          </div>
+
+                          <button type="submit" class="btn btn-primary mt-3 w-100">Pay Now</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+
+{% endblock %}
