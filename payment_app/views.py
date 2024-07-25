@@ -8,6 +8,7 @@ from store_app.models import Product, Profile
 import datetime
 from django.core.mail import send_mail,EmailMessage
 from django.conf import settings
+import uuid
 
 # Create your views here.
 
@@ -144,7 +145,7 @@ def process_order(request):
                         email_message = EmailMessage(
                         subject=f'Order Form: {full_name} - {email}',
                         #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
-                        body=f"User ID: {user}\nOrder ID: {order_id}\nQuantity Value: {value}\nQuantities: {quantities().items()}\nTotals: {totals}\nProduct ID: {product_id}\nProduct Name: {product.name}\nItem Price: {price}\nShipping Address: {shipping_address}",
+                        body=f"Order Unique ID: {str(uuid.uuid4())}\nUser ID: {user}\nOrder ID: {order_id}\nQuantity Value: {value}\nQuantities: {quantities().items()}\nTotals: {totals}\nProduct ID: {product_id}\nProduct Name: {product.name}\nItem Price: {price}\nShipping Address: {shipping_address}",
                 
                         from_email=settings.EMAIL_HOST_USER,
                         to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
@@ -203,7 +204,7 @@ def process_order(request):
                         email_message = EmailMessage(
                         subject=f'Order Form: {full_name} - {email}',
                         #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
-                        body=f'Order ID: {order_id}\nQuantity Value: {value}\nQuantities: {quantities().items()}\nTotals: {totals}\nProduct ID: {product_id}\nProduct Name: {product.name}\nItem Price: {price}\nShipping Address: {shipping_address}',
+                        body=f'Order Unique ID: {str(uuid.uuid4())}\nOrder ID: {order_id}\nQuantity Value: {value}\nQuantities: {quantities().items()}\nTotals: {totals}\nProduct ID: {product_id}\nProduct Name: {product.name}\nItem Price: {price}\nShipping Address: {shipping_address}',
                 
                         from_email=settings.EMAIL_HOST_USER,
                         to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],

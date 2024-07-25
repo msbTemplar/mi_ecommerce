@@ -34,6 +34,22 @@ urlpatterns = [
     path('category/<str:foo>', views.category, name='category'),
     path('category_summary/', views.category_summary, name='category_summary'),
     path('search/', views.search, name='search'),
+    
+    path('enregistrer_charge/', views.enregistrer_charge_view, name='enregistrer_charge'),
+    path('liste_des_charges', views.liste_des_charges, name='liste_des_charges'),
+    path('actualiser_la_charge/<id_charge>', views.actualiser_la_charge, name='actualiser_la_charge'),
+    path('eliminer_la_charge/<id_charge>', views.eliminer_la_charge, name='eliminer_la_charge'),
+    path('liste_des_formulaire_charges', views.liste_des_formulaire_charges, name='liste_des_formulaire_charges'),
+    path('enregistrer_formulaire_charge/', views.enregistrer_formulaire_charge_view, name='enregistrer_formulaire_charge'),
+    path('actualiser_formulaire_charge/<id_formulaire_charge>', views.actualiser_formulaire_charge, name='actualiser_formulaire_charge'),
+    path('eliminer_formulaire_charge/<id_formulaire_charge>', views.eliminer_formulaire_charge, name='eliminer_formulaire_charge'),
+    
+     path('liste_des_formulaire_articles', views.liste_des_formulaire_articles, name='liste_des_formulaire_articles'),
+    path('enregistrer_formulaire_article/', views.enregistrer_formulaire_article_view, name='enregistrer_formulaire_article'),
+    path('actualiser_formulaire_article/<id_formulaire_article>', views.actualiser_formulaire_article, name='actualiser_formulaire_article'),
+    path('eliminer_formulaire_article/<id_formulaire_article>', views.eliminer_formulaire_article, name='eliminer_formulaire_article'),
+    
+    path('liste_situation_caisse', views.liste_situation_caisse, name='liste_situation_caisse'),
 
 
 ]

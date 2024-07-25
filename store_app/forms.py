@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from django import forms
-from .models import Profile
+from .models import Profile,Charge,FormulaireCharge,FormulaireArticle
 
 class UserInfoForm(forms.ModelForm):
     phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Phone'}), required=False)
@@ -86,3 +86,41 @@ class SignUpForm(UserCreationForm):
 		self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
 		self.fields['password2'].label = ''
 		self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
+
+
+class EnregistrerChargeForm(forms.ModelForm):
+    class Meta:
+        model = Charge
+        fields = '__all__'
+        widgets = {'nome_charge': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire la charge','name':'nome_charge'}),}
+
+class EnregistrerFormulaireChargeForm(forms.ModelForm):
+    class Meta:
+        model = FormulaireCharge
+        fields = '__all__'
+        widgets = {
+            'date': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Date', 'type': 'date'}),
+            'charge': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Charge'}),
+            
+            'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Montant', 'id': 'id_montant', 'min': '0', 'step': '0.01'}),
+            'image_charge': forms.ClearableFileInput(attrs={'class': 'form-control', 'name': 'files', 'id': 'formFile'}),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Obtener las opciones dinámicamente desde el modelo Charge
+        self.fields['charge'].queryset = Charge.objects.all()  # Puedes ajustar esto según tus necesidades de filtrado
+        
+
+class EnregistrerFormulaireArticleForm(forms.ModelForm):
+    class Meta:
+        model = FormulaireArticle
+        fields = '__all__'
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire le nom','name':'nom'}),
+            'description': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Description Article'}),
+            'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix', 'id': 'id_prix', 'min': '0', 'step': '0.01'}),
+            'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
+            'vendu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'image_charge': forms.ClearableFileInput(attrs={'class': 'form-control', 'name': 'files', 'id': 'formFile'}),
+        }
+    

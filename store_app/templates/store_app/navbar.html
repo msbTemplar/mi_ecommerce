@@ -49,6 +49,23 @@
                         <li><a class="dropdown-item" href="{% url 'category' 'Marketing-Books'  %}">Marketing Books</a></li>
                     </ul>
                 </li>
+                {% if user.is_superuser %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Article - Charge - Caisse</a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'liste_des_formulaire_articles' %}">Article</a></li>
+                        <li><a class="dropdown-item" href="{% url 'enregistrer_formulaire_article' %}">Formulaire Article</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="{% url 'liste_des_charges'  %}">Charge</a></li>
+                        <li><a class="dropdown-item" href="{% url 'enregistrer_charge'  %}">Enregister une charge</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="{% url 'liste_des_formulaire_charges'  %}">Formulaire Charge</a></li>
+                        <li><a class="dropdown-item" href="{% url 'enregistrer_formulaire_charge'  %}">Formulaire charges de generales</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="{% url 'liste_situation_caisse'  %}">Liste Caisse</a></li>
+                    </ul>
+                </li>
+                {% endif %}
             </ul>
             <form class="d-flex">
                 <a class="btn btn-success" href="{% url 'cart_summary' %}">
