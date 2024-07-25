@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from django import forms
-from .models import Profile,Charge,FormulaireCharge,FormulaireArticle
+from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category
 
 class UserInfoForm(forms.ModelForm):
     phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Phone'}), required=False)
@@ -121,6 +121,12 @@ class EnregistrerFormulaireArticleForm(forms.ModelForm):
             'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix', 'id': 'id_prix', 'min': '0', 'step': '0.01'}),
             'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
             'vendu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'category': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Category'}),
             'image_charge': forms.ClearableFileInput(attrs={'class': 'form-control', 'name': 'files', 'id': 'formFile'}),
         }
-    
+
+class EnregistrerCategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = '__all__'
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire la charge','name':'name_category'}),}

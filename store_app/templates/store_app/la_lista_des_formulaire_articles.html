@@ -24,6 +24,7 @@
         <th scope="col" class="text-center">Prix</th>
         <th scope="col" class="text-center">Cree le</th>
         <th scope="col" class="text-center">Vendu</th>
+        <th scope="col" class="text-center">Category</th>
         <th scope="col" class="text-center">Article chargé</th>
        
         {% if user.is_superuser %}
@@ -38,10 +39,15 @@
       {% for formulaire_article in la_lista_des_formulaire_articles %}
       <tr>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.nom}}</th>
-        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.description}}</th>
+       
+        <th>
+          <a class="btn btn-primary" href="#" onclick="verDescripcion('{{ formulaire_article.id }}','{{formulaire_article.description}}','{{formulaire_article.image_charge.url}}')">Ver Descripcion 
+            {{ formulaire_article.id }}</a>
+        </th>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.prix}}</th>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.cree_le|date:"Y-m-d"}}</th>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.vendu}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.category}}</th>
         <!--
         <td style="text-align: center;">
             {% if formulaire_charge.image_charge %} 

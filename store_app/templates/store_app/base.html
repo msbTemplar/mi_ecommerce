@@ -142,6 +142,49 @@
                 });
             };
 
+            function confirmDeleteCategory(id) {
+                Swal.fire({
+                    title: "Tu es sure de vouloir eliminer le formulaire category?",
+                    text: "C'est un procéde irreversible!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Oui Eliminer!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Aquí se muestra el segundo SweetAlert para informar sobre la eliminación
+                        Swal.fire({
+                            title: "Eliminée!",
+                            text: "Le Formulaire category seleccionnée a été eliminer correctement.",
+                            icon: "success",
+                        }).then((isConfirmed) => {
+                            // Verificar si el usuario ha confirmado el segundo SweetAlert
+                            if (isConfirmed) {
+                                console.log("el id es : " + id);
+                                // Aquí redireccionamos al usuario para eliminar el registro
+                                window.location.href = `/eliminer_la_category/${id}`; // Asegúrate de que esta URL sea correcta
+                            } else {
+                                Swal.fire("Cancelled", "Le formulaire category seleccionnée n'a pas été eliminer correctement :)", "error");
+                            }
+                        });
+                    }
+                });
+            };
+            
+            function verDescripcion(id,descripcion,url){
+                console.log("el id es : " + id);
+                Swal.fire({
+                  title: "La Descripción",
+                  text: descripcion,
+                  imageUrl: url,
+                  imageWidth: 400,
+                  imageHeight: 200,
+                  imageAlt: "Custom image",
+                });
+              
+              };
+        
         </script>
     </body>
 </html>

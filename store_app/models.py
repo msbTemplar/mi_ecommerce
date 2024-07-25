@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+from django.dispatch import receiver
 
 
 # Create your models here.
@@ -40,7 +41,7 @@ post_save.connect(create_profile, sender=User)
     
 
 class Category(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null=True, blank=True)
     
     def __str__(self) :
         return self.name
@@ -120,10 +121,46 @@ class FormulaireArticle(models.Model):
     prix = models.DecimalField('Prix', max_digits=10, decimal_places=2, null=True, blank=True)  # Agregar max_digits y decimal_places
     cree_le=models.DateTimeField('Cree le',default=datetime.datetime.today, null=True, blank=True)
     vendu= models.BooleanField('Vendu',default=False, null=True, blank=True)
-    
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1 , null=True, blank=True)
     #image_charge = models.ImageField(null=True, blank=True, upload_to="images/")
     image_charge = models.FileField('Article chargé', null=True, blank=True, upload_to="uploads/",
                                     validators=[validate_file_extension])
     
     def __str__(self) -> str:  # Agregar un método __str__ para esta clase también
         return f"FormulaireArticle Nom Article {self.nom} date {self.cree_le} avec le montant {self.prix} "
+    
+
+@receiver(post_save, sender=FormulaireArticle)
+def create_product(sender, instance, created, **kwargs):
+    if created:
+        # Define the category you want to assign, adjust the default value as necessary
+          # Cambia '1' por el ID de la categoría que desees usar por defecto
+        
+        #default_category = get_category_for_article(instance)
+        default_category = Category.objects.get(id=1)
+         
+        """
+        if default_category is not None:
+            default_category = default_category
+        else:
+            default_category = Category.objects.get(id=1)
+        """
+        Product.objects.create(
+            name=instance.nom,  # Map nom to name
+            price=instance.prix,  # Map prix to price
+            category=instance.category,  # Set a default category
+            description=instance.description,  # Map description to description
+            image=instance.image_charge,  # Map image_charge to image
+            is_sale=instance.vendu,  # Map vendu to is_sale
+            sale_price=instance.prix if instance.vendu else 0  # Set sale_price if vendu is True
+        )
+
+def get_category_for_article(article):
+    # Aquí defines tu lógica para seleccionar la categoría
+    # Por ejemplo, basado en el nombre del artículo:
+    if "electronic" in article.nom.lower():
+        return Category.objects.get(name="Programming Books")
+    elif "clothing" in article.nom.lower():
+        return Category.objects.get(name="Clothing")
+    else:
+        return Category.objects.get(name="General")  # Default category

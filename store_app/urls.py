@@ -50,6 +50,11 @@ urlpatterns = [
     path('eliminer_formulaire_article/<id_formulaire_article>', views.eliminer_formulaire_article, name='eliminer_formulaire_article'),
     
     path('liste_situation_caisse', views.liste_situation_caisse, name='liste_situation_caisse'),
+    
+    path('enregistrer_category/', views.enregistrer_category_view, name='enregistrer_category'),
+    path('liste_des_categories', views.liste_des_categories, name='liste_des_categories'),
+    path('actualiser_la_category/<id_category>', views.actualiser_la_category, name='actualiser_la_category'),
+    path('eliminer_la_category/<id_category>', views.eliminer_la_category, name='eliminer_la_category'),
 
 
 ]

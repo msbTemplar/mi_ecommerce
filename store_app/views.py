@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm
+from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm,EnregistrerCategoryForm
 from django import forms
 from django.db.models import Q
 import json
@@ -478,6 +478,7 @@ def liste_des_formulaire_articles(request):
                 item.prix,
                 item.cree_le.strftime('%Y-%m-%d'),
                 item.vendu,
+                item.category.name,
                 item.image_charge.name
             ]
             #if request.user.is_superuser:
@@ -506,6 +507,7 @@ def enregistrer_formulaire_article_view(request):
             #name = request.user.username
             #file = request.FILES['file']
             instance = form.save()
+            category = instance.category
             nom = instance.nom
             description=instance.description
             prix=instance.prix
@@ -517,7 +519,7 @@ def enregistrer_formulaire_article_view(request):
             email_message = EmailMessage(
                 subject=f'Contact Form: {date} - {nom} - {prix}',
                 #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
-                body=f'Nom du Article: {nom}\nDescription du article: {description}\nPrix de article: {prix}\Date creation article: {cree_le}\Etat du article: {vendu}',
+                body=f'Nom du Article: {nom}\nDescription du article: {description}\nPrix de article: {prix}\nDate creation article: {cree_le}\nEtat du article: {vendu}\nCategory: {category}',
                 
                 from_email=settings.EMAIL_HOST_USER,
                 to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
@@ -613,3 +615,78 @@ def liste_situation_caisse(request):
         return response
     
     return render(request, 'store_app/la_lista_situation_caisse.html', context)
+
+
+def enregistrer_category_view(request):
+    if request.method == 'POST':
+        form = EnregistrerCategoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            #form.save()
+            #titulo_serie = request.POST['titulo_serie']
+            #serie_o_pelicula = request.POST['serie_o_pelicula']
+            #plataforma = request.POST['plataforma']
+            #name = request.user.username
+            #file = request.FILES['file']
+            instance = form.save()
+            name = instance.name
+           
+            #files = request.FILES.getlist('files')
+            email_message = EmailMessage(
+                subject=f'Contact Form: {name} - {name}',
+                #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
+                body=f'Nom de la category: {name}',
+                
+                from_email=settings.EMAIL_HOST_USER,
+                to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                reply_to=['msebti2@gmail.com']
+            )
+            # Adjuntar cada archivo
+            #for file in files:
+                #email_message.attach(file.name, file.read(), file.content_type)
+            
+            #if serie_pelicula_imagen:
+                #mime_type, _ = mimetypes.guess_type(serie_pelicula_imagen.path)
+                #email_message.attach(serie_pelicula_imagen.name, serie_pelicula_imagen.read(), mime_type)
+            
+            # Adjuntar el archivo
+            #email_message.attach(file.name, file.read(), file.content_type)
+
+            # Enviar el email
+            email_message.send(fail_silently=False)
+            form.save()
+            return redirect('liste_des_categories')  # Cambia esto por la vista a la que deseas redirigir después de guardar
+    else:
+        form = EnregistrerCategoryForm()
+    return render(request, 'enregistrer_category.html', {'form': form})
+
+def liste_des_categories(request):
+    # venue_list = Venue.objects.all().order_by('?')
+    la_lista_des_categories = Category.objects.all()
+    name = request.user.username
+    # set pagination
+    
+    p = Paginator(la_lista_des_categories, 5)
+    page = request.GET.get('page')
+    tous_les_categories = p.get_page(page)
+    nums = "a" * tous_les_categories.paginator.num_pages
+    
+    print("hola : " + str(tous_les_categories.paginator.num_pages))
+    
+    context = {'la_lista_des_categories': la_lista_des_categories, 'tous_les_categories': tous_les_categories, 'nums': nums, 'name':name}
+    return render(request, 'store_app/la_lista_des_categories.html', context)
+
+def actualiser_la_category(request, id_category):
+    category = Category.objects.get(pk=id_category)
+    form = EnregistrerCategoryForm(request.POST or None, request.FILES or None,  instance=category)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "La category a été actualisé correctement.")
+        return redirect('liste_des_categories')
+    context = {'category': category, 'form': form}
+    return render(request, 'store_app/actualizer_la_category.html', context)
+
+def eliminer_la_category(request, id_category):
+    category = get_object_or_404(Category, id=id_category)
+    category.delete()
+    messages.success(request, "La category a été eliminer correctement.")
+    return redirect('liste_des_categories')  # Reemplaza 'nombre_de_tu_vista' con el nombre de tu vista principal
