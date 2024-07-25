@@ -30,9 +30,9 @@ SECRET_KEY = 'django-insecure--=z=4s5hha#r)m(2_m)ye^m#p)k*&*y&5f$9bu%!bxmynnr3#y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['miecommerce-production.up.railway.app', 'https://miecommerce-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['https://miecommerce-production.up.railway.app']
-#ALLOWED_HOSTS=[]
+#ALLOWED_HOSTS = ['miecommerce-production.up.railway.app', 'https://miecommerce-production.up.railway.app']
+#CSRF_TRUSTED_ORIGINS = ['https://miecommerce-production.up.railway.app']
+ALLOWED_HOSTS=[]
 
 # Application definition
 
@@ -87,14 +87,13 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-"""
+
 
 """
 DATABASES = {
@@ -111,6 +110,7 @@ DATABASES = {
     }
 }
 """
+"""
 DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.sqlite3',
@@ -124,7 +124,7 @@ DATABASES = {
         
     }
 }
-
+"""
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
