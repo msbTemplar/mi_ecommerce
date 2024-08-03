@@ -2,7 +2,7 @@ from django.db import models
 import datetime
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-
+from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
 
@@ -48,7 +48,15 @@ class Category(models.Model):
     #@daverobb2011
     class Meta:
         verbose_name_plural='categories'
-        
+
+class About(models.Model):
+    description = models.TextField(null=True, blank=True)  # Cambiado a TextField para textos más largos
+    
+    def __str__(self):
+        return self.description[:50]  # Devuelve los primeros 50 caracteres para una vista previa
+    
+    class Meta:
+        verbose_name_plural = 'about'  # Cambiado a 'about' para que sea más representativo 
         
 class Customer(models.Model):
     first_name=models.CharField(max_length=50)
@@ -113,7 +121,7 @@ class FormulaireCharge(models.Model):
                                     validators=[validate_file_extension])
     
     def __str__(self) -> str:  # Agregar un método __str__ para esta clase también
-        return f"FormulaireCharge Charge {self.charge} du {self.du} au {self.au} avec le montant {self.montant} "
+        return f"FormulaireCharge Charge {self.charge} date {self.date} avec le montant {self.prix} "
 
 class FormulaireArticle(models.Model):
     nom=models.CharField('Nom Article', max_length=120, blank=True, null=True)
@@ -121,7 +129,9 @@ class FormulaireArticle(models.Model):
     prix = models.DecimalField('Prix', max_digits=10, decimal_places=2, null=True, blank=True)  # Agregar max_digits y decimal_places
     cree_le=models.DateTimeField('Cree le',default=datetime.datetime.today, null=True, blank=True)
     vendu= models.BooleanField('Vendu',default=False, null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1 , null=True, blank=True)
+    #category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1 , null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,  null=False, blank=False)
+    
     #image_charge = models.ImageField(null=True, blank=True, upload_to="images/")
     image_charge = models.FileField('Article chargé', null=True, blank=True, upload_to="uploads/",
                                     validators=[validate_file_extension])
@@ -130,31 +140,42 @@ class FormulaireArticle(models.Model):
         return f"FormulaireArticle Nom Article {self.nom} date {self.cree_le} avec le montant {self.prix} "
     
 
-@receiver(post_save, sender=FormulaireArticle)
-def create_product(sender, instance, created, **kwargs):
-    if created:
-        # Define the category you want to assign, adjust the default value as necessary
-          # Cambia '1' por el ID de la categoría que desees usar por defecto
-        
-        #default_category = get_category_for_article(instance)
-        default_category = Category.objects.get(id=1)
-         
-        """
+
+"""
         if default_category is not None:
             default_category = default_category
         else:
             default_category = Category.objects.get(id=1)
         """
-        Product.objects.create(
-            name=instance.nom,  # Map nom to name
-            price=instance.prix,  # Map prix to price
-            category=instance.category,  # Set a default category
-            description=instance.description,  # Map description to description
-            image=instance.image_charge,  # Map image_charge to image
-            is_sale=instance.vendu,  # Map vendu to is_sale
-            sale_price=instance.prix if instance.vendu else 0  # Set sale_price if vendu is True
-        )
+    
+@receiver(post_save, sender=FormulaireArticle)
+def create_product(sender, instance, created, **kwargs):
+    print(f"Signal triggered for FormulaireArticle: {instance}")  # Verifica si la señal se activa
 
+    if created:
+        try:
+            # Verificar si instance.category está presente y es válida
+            if instance.category:
+                category_instance = instance.category  # Obtener la instancia de la categoría
+                print(f"Category associated with FormulaireArticle: {category_instance.name}")  # Depuración
+            else:
+                raise ValueError("No se ha asignado una categoría válida a FormulaireArticle.")
+
+            # Crear el Product usando la instancia de la categoría del FormulaireArticle
+            Product.objects.create(
+                name=instance.nom,  # Map nom to name
+                price=instance.prix,  # Map prix to price
+                category=category_instance,  # Pasar la instancia de la categoría
+                description=instance.description,  # Map description to description
+                image=instance.image_charge,  # Map image_charge to image
+                is_sale=instance.vendu,  # Map vendu to is_sale
+                sale_price=instance.prix if instance.vendu else 0  # Set sale_price if vendu is True
+            )
+            print("Product created successfully.")  # Depuración
+
+        except Exception as e:
+            print(f"Error creating product: {str(e)}")  # Depuración
+ 
 def get_category_for_article(article):
     # Aquí defines tu lógica para seleccionar la categoría
     # Por ejemplo, basado en el nombre del artículo:
@@ -164,3 +185,12 @@ def get_category_for_article(article):
         return Category.objects.get(name="Clothing")
     else:
         return Category.objects.get(name="General")  # Default category
+
+@receiver(post_delete, sender=FormulaireArticle)
+def delete_product(sender, instance, **kwargs):
+    try:
+        # Busca y elimina el Product relacionado con el FormulaireArticle eliminado
+        Product.objects.filter(name=instance.nom, price=instance.prix).delete()
+        print(f"Product associated with FormulaireArticle '{instance.nom}' deleted.")
+    except Exception as e:
+        print(f"Error deleting product: {str(e)}")

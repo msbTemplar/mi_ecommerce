@@ -1,0 +1,26 @@
+{% extends 'store_app/base.html' %}
+
+{% block content %}
+ <!-- Header-->
+ <header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">About us</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Welcome to my ecommerce page</p>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn btn-primary m-2" type="submit">Sauvegarder</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

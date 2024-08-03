@@ -1,0 +1,28 @@
+{% extends 'store_app/base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+    <h1>Actualiser About....</h1>
+    
+    <form action="" method="POST" enctype="multipart/form-data" id="actualiserFormulaireChargeForm">
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success mb-5 w-100" >Actualiser About </button>
+    </form>
+    
+   
+    {% else %}
+
+    <h1>sorry you must be login to view this page</h1>
+    <a class="btn btn-secondary" href="{% url 'login' %}">Login Here</a>
+    </div>
+    </div>
+    </div>
+    {% endif %}
+
+    
+{% endblock %}

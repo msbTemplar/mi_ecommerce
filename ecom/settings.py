@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'cart_app',
     'payment_app',
     'whitenoise.runserver_nostatic',
+    
 ]
 
 MIDDLEWARE = [
@@ -187,3 +188,26 @@ EMAIL_HOST_PASSWORD="sfki wpcn sxib uojk"
 #EMAIL_AUTH_PASSWORD="anbc ictn simy cfrq"
 #anbc ictn simy cfrq 
 #sfki wpcn sxib uojk     24052024
+
+"""
+COOKIE_CONSENT = {
+    'REQUIRED': True,
+    'TEXT': 'Este sitio utiliza cookies para mejorar tu experiencia. Si continúas navegando, consideramos que aceptas el uso de cookies.',
+    'ACCEPT_TEXT': 'Aceptar',
+    'MORE_INFO_URL': '/privacy-policy/',  # URL a tu política de privacidad
+}
+
+# Configuración para django-cookie-law
+COOKIE_LAW = {
+    'COOKIE_NAME': 'cookie_consent',
+    'COOKIE_EXPIRE': 365 * 24 * 60 * 60,  # Expira en 1 año
+    'COOKIE_PATH': '/',
+    'COOKIE_DOMAIN': None,
+    'COOKIE_SECURE': False,  # Cambia a True si usas HTTPS
+    'COOKIE_HTTPONLY': True,
+    'COOKIE_SAMESITE': 'Lax',
+    'TEXT': 'Este sitio usa cookies para mejorar tu experiencia.',
+    'ACCEPT_TEXT': 'Aceptar',
+    'MORE_INFO_URL': '/privacy-policy/',  # URL a tu política de privacidad
+}
+"""

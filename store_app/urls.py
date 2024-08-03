@@ -23,6 +23,11 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('about/', views.about, name='about'),
+    path('about/<int:pk>/', views.create_or_update_about, name='update_about'),
+    path('about/new/', views.create_or_update_about, name='create_about'),
+    path('liste_about', views.liste_about, name='liste_about'),
+    path('actualiser_about/<id_about>', views.actualiser_about, name='actualiser_about'),
+    path('eliminer_about/<id_about>', views.eliminer_about, name='eliminer_about'),
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
     path('register/', views.register_user, name='register'),
@@ -34,7 +39,7 @@ urlpatterns = [
     path('category/<str:foo>', views.category, name='category'),
     path('category_summary/', views.category_summary, name='category_summary'),
     path('search/', views.search, name='search'),
-    
+    path('category/<slug:slug>/', views.category_detail, name='category_detail'),
     path('enregistrer_charge/', views.enregistrer_charge_view, name='enregistrer_charge'),
     path('liste_des_charges', views.liste_des_charges, name='liste_des_charges'),
     path('actualiser_la_charge/<id_charge>', views.actualiser_la_charge, name='actualiser_la_charge'),

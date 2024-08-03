@@ -148,7 +148,7 @@ def process_order(request):
                         body=f"Order Unique ID: {str(uuid.uuid4())}\nUser ID: {user}\nOrder ID: {order_id}\nQuantity Value: {value}\nQuantities: {quantities().items()}\nTotals: {totals}\nProduct ID: {product_id}\nProduct Name: {product.name}\nItem Price: {price}\nShipping Address: {shipping_address}",
                 
                         from_email=settings.EMAIL_HOST_USER,
-                        to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                        to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com','ozazfashion@gmail.com'],
                         reply_to=['msebti2@gmail.com']
                     )
             
@@ -207,7 +207,7 @@ def process_order(request):
                         body=f'Order Unique ID: {str(uuid.uuid4())}\nOrder ID: {order_id}\nQuantity Value: {value}\nQuantities: {quantities().items()}\nTotals: {totals}\nProduct ID: {product_id}\nProduct Name: {product.name}\nItem Price: {price}\nShipping Address: {shipping_address}',
                 
                         from_email=settings.EMAIL_HOST_USER,
-                        to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                        to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com','ozazfashion@gmail.com'],
                         reply_to=['msebti2@gmail.com']
                     )
             
@@ -290,3 +290,54 @@ def checkout(request):
     
     return render(request, "payment_app/checkout.html", context)
 
+def enregistrer_formulaire_ShippingForm_view(request):
+    if request.method == 'POST':
+        form = ShippingForm(request.POST, request.FILES)
+        if form.is_valid():
+            #form.save()
+            #titulo_serie = request.POST['titulo_serie']
+            #serie_o_pelicula = request.POST['serie_o_pelicula']
+            #plataforma = request.POST['plataforma']
+            #name = request.user.username
+            #file = request.FILES['file']
+            
+            instance = form.save()
+            instance.user = request.user
+            shipping_full_name = instance.shipping_full_name
+            shipping_email = instance.shipping_email
+            shipping_address1 = instance.shipping_address1
+            shipping_address2 = instance.shipping_address2
+            shipping_city=instance.shipping_city
+            shipping_state = instance.shipping_state
+            shipping_zipcode = instance.shipping_zipcode
+            shipping_country = instance.shipping_country
+            """
+            #files = request.FILES.getlist('files')
+            email_message = EmailMessage(
+                subject=f'Contact Form: {date} - {charge} - {montant}',
+                #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
+                body=f'Nom de la charge: {charge}\nDate de la charge: {date}\nMontant de la charge: {montant}\nDu de la charge: {du}\nAu de la charge: {au}',
+                
+                from_email=settings.EMAIL_HOST_USER,
+                to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                reply_to=['msebti2@gmail.com']
+            )
+            # Adjuntar cada archivo
+            #for file in files:
+                #email_message.attach(file.name, file.read(), file.content_type)
+            
+            if image_charge:
+                mime_type, _ = mimetypes.guess_type(image_charge.path)
+                email_message.attach(image_charge.name, image_charge.read(), mime_type)
+            
+            # Adjuntar el archivo
+            #email_message.attach(file.name, file.read(), file.content_type)
+
+            # Enviar el email
+            email_message.send(fail_silently=False)
+            """
+            form.save()
+            return redirect('home')  # Cambia esto por la vista a la que deseas redirigir después de guardar
+    else:
+        form = ShippingForm()
+    return render(request, 'enregistrer_formulaire_ShippingForm.html', {'form': form})

@@ -4,14 +4,14 @@ from .models import ShippingAddress
 # phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Phone'}), required=False)
 
 class ShippingForm(forms.ModelForm):
-    shipping_full_name = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Full Name'}), required=False)
-    shipping_email = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Email Address'}), required=False)
-    shipping_address1 = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Address 1'}), required=False)
-    shipping_address2 = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Address 2'}), required=False)
-    shipping_city = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'City'}), required=False)
-    shipping_state= forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'State'}), required=False)
-    shipping_zipcode = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Zip Code'}), required=False)
-    shipping_country = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Country'}), required=False)
+    shipping_full_name = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Nom Complet'}), required=False)
+    shipping_email = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Email'}), required=False)
+    shipping_address1 = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Addresse'}), required=False)
+    shipping_address2 = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Téléphone'}), required=False)
+    shipping_city = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Ville'}), required=False)
+    shipping_state= forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Commune'}), required=False)
+    shipping_zipcode = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Code Postal'}), required=False)
+    shipping_country = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Pays'}), required=False)
     
     class Meta:
         model = ShippingAddress

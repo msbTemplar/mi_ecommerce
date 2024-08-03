@@ -7,8 +7,11 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'search' %}">Search</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'search' %}">Chercher Article</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'liste_about' %}">A propos de nous</a></li>
+                {% if user.is_superuser %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'create_about' %}">Cree A propos de nous</a></li>
+                {% endif %}
                 {% if user.is_authenticated %}
                 <!--
                 <li class="nav-item"><a class="nav-link" href="{% url 'update_user' %}">Profile</a></li>
@@ -19,7 +22,7 @@
                         <li><a class="dropdown-item" href="{% url 'update_user' %}">User Profile</a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li><a class="dropdown-item" href="{% url 'update_info'  %}">User Info</a></li>
-                        
+                        <li><a class="dropdown-item" href="{% url 'enregistrer_formulaire_ShippingForm'  %}">User Shipping Address</a></li>
                     </ul>
                 </li>
                 {% if user.is_superuser %}
@@ -37,7 +40,7 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">S'enregistrer</a></li>
                 {% endif %}
                 
                 <li class="nav-item dropdown">
@@ -45,8 +48,17 @@
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{% url 'category_summary' %}">All Products</a></li>
                         <li><hr class="dropdown-divider" /></li>
+                        <!--
                         <li><a class="dropdown-item" href="{% url 'category' 'Programming-Books'  %}">Programming Books</a></li>
                         <li><a class="dropdown-item" href="{% url 'category' 'Marketing-Books'  %}">Marketing Books</a></li>
+                        -->
+                        {% for category in categories %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'category' category.name %}">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
                     </ul>
                 </li>
                 {% if user.is_superuser %}
@@ -73,7 +85,7 @@
             <form class="d-flex">
                 <a class="btn btn-success" href="{% url 'cart_summary' %}">
                     <i class="bi-cart-fill me-1"></i>
-                    Cart
+                    Panier
                     <span class="badge bg-dark text-white ms-1 rounded-pill" id="cart_quantity">{{ cart|length }}</span>
                 </a>
                 

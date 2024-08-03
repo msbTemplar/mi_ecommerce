@@ -1,10 +1,10 @@
 from django.shortcuts import render,redirect
-from .models import Product,Category, Profile,Charge,FormulaireCharge, FormulaireArticle
+from .models import Product,Category, Profile,Charge,FormulaireCharge, FormulaireArticle,About
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm,EnregistrerCategoryForm
+from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm,EnregistrerCategoryForm,AboutForm
 from django import forms
 from django.db.models import Q
 import json
@@ -36,6 +36,7 @@ from django.core import management
 from calendar import HTMLCalendar
 from datetime import datetime
 import mimetypes
+from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
 
@@ -142,6 +143,15 @@ def category_summary(request):
     context={'categories':categories}
     return render(request, 'store_app/category_summary.html',context)
 
+def category_detail(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    products = Product.objects.filter(category=category)
+    context = {
+        'category': category,
+        'products': products,
+    }
+    return render(request, 'store_app/category_detail.html', context)
+
 def category(request, foo):
     foo = foo.replace('-', ' ')
     #grab the category from url
@@ -173,6 +183,48 @@ def home(request):
 def about(request):
     context={}
     return render(request, 'store_app/about.html',context)
+
+def create_or_update_about(request, pk=None):
+    if pk:
+        about = get_object_or_404(About, pk=pk)
+    else:
+        about = None
+
+    if request.method == 'POST':
+        form = AboutForm(request.POST, instance=about)
+        if form.is_valid():
+            form.save()
+            return redirect('home')  # Redirige a una vista que muestre la lista de About, por ejemplo
+    else:
+        form = AboutForm()
+
+    return render(request, 'about_form.html', {'form': form})
+
+def liste_about(request):
+    # venue_list = Venue.objects.all().order_by('?')
+    la_lista_about = About.objects.all()
+    
+    name = request.user.username
+    # set pagination
+    
+    context={'la_lista_about': la_lista_about, 'name':name}
+    
+    return render(request, 'store_app/about.html', context)
+
+def actualiser_about(request, id_about):
+    about = About.objects.get(pk=id_about)
+    form = AboutForm(request.POST or None, request.FILES or None,  instance=about)
+    if form.is_valid():
+        form.save()
+        return redirect('home')
+    context = {'about': about, 'form': form}
+    return render(request, 'store_app/actualizer_about.html', context)
+
+def eliminer_about(request, id_about):
+    about = get_object_or_404(About, id=id_about)
+    about.delete()
+    messages.success(request, "Le formulaire about a été eliminer correctement.")
+    return redirect('liste_about')  # Reemplaza 'nombre_de_tu_vista' con el nombre de tu vista principal
 
 def login_user(request):
     if request.method == "POST":
@@ -500,46 +552,69 @@ def enregistrer_formulaire_article_view(request):
     if request.method == 'POST':
         form = EnregistrerFormulaireArticleForm(request.POST, request.FILES)
         if form.is_valid():
-            #form.save()
-            #titulo_serie = request.POST['titulo_serie']
-            #serie_o_pelicula = request.POST['serie_o_pelicula']
-            #plataforma = request.POST['plataforma']
-            #name = request.user.username
-            #file = request.FILES['file']
-            instance = form.save()
-            category = instance.category
-            nom = instance.nom
-            description=instance.description
-            prix=instance.prix
-            cree_le = instance.cree_le
-            vendu=instance.vendu
-            image_charge = instance.image_charge
-           
-            #files = request.FILES.getlist('files')
-            email_message = EmailMessage(
-                subject=f'Contact Form: {date} - {nom} - {prix}',
-                #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
-                body=f'Nom du Article: {nom}\nDescription du article: {description}\nPrix de article: {prix}\nDate creation article: {cree_le}\nEtat du article: {vendu}\nCategory: {category}',
+            try:
+            
+                #form.save()
+                #titulo_serie = request.POST['titulo_serie']
+                #serie_o_pelicula = request.POST['serie_o_pelicula']
+                #plataforma = request.POST['plataforma']
+                #name = request.user.username
+                #file = request.FILES['file']
+                # Verificar que la categoría existe
+                category_id = request.POST.get('category')
+                print("le categori_id es :" + category_id)
                 
-                from_email=settings.EMAIL_HOST_USER,
-                to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
-                reply_to=['msebti2@gmail.com']
-            )
-            # Adjuntar cada archivo
-            #for file in files:
+                if category_id:
+                    try:
+                        category = Category.objects.get(id=category_id)
+                        print(category.name)
+                        print(category)
+                    except ObjectDoesNotExist:
+                        return HttpResponse(f"Error: La categoría con id {category_id} no existe.")
+                
+                instance = form.save(commit=False)
+                instance.category_id = request.POST.get('category')
+                instance.save()
+                category = instance.category
+                print("esta categoria :" + category.name)
+                nom = instance.nom
+                description=instance.description
+                prix=instance.prix
+                cree_le = instance.cree_le
+                vendu=instance.vendu
+                image_charge = instance.image_charge
+            
+                #files = request.FILES.getlist('files')
+                email_message = EmailMessage(
+                    subject=f'Contact Form: {date} - {nom} - {prix}',
+                    #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
+                    body=f'Nom du Article: {nom}\nDescription du article: {description}\nPrix de article: {prix}\nDate creation article: {cree_le}\nEtat du article: {vendu}\nCategory: {category.name}',
+                    
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                    reply_to=['msebti2@gmail.com']
+                )
+                # Adjuntar cada archivo
+                #for file in files:
+                    #email_message.attach(file.name, file.read(), file.content_type)
+                
+                if image_charge:
+                    mime_type, _ = mimetypes.guess_type(image_charge.path)
+                    email_message.attach(image_charge.name, image_charge.read(), mime_type)
+                
+                # Adjuntar el archivo
                 #email_message.attach(file.name, file.read(), file.content_type)
-            
-            if image_charge:
-                mime_type, _ = mimetypes.guess_type(image_charge.path)
-                email_message.attach(image_charge.name, image_charge.read(), mime_type)
-            
-            # Adjuntar el archivo
-            #email_message.attach(file.name, file.read(), file.content_type)
 
-            # Enviar el email
-            email_message.send(fail_silently=False)
-            form.save()
-            return redirect('liste_des_formulaire_articles')  # Cambia esto por la vista a la que deseas redirigir después de guardar
+                # Enviar el email
+                email_message.send(fail_silently=False)
+                form.save()
+                return redirect('liste_des_formulaire_articles')  # Cambia esto por la vista a la que deseas redirigir después de guardar
+            except Category.DoesNotExist as e:
+                return HttpResponse(f"Error: {str(e)}")
+        else:
+            # Imprimir errores de formulario para depuración
+            return HttpResponse(f"Errores en el formulario: {form.errors}")
+        
     else:
         form = EnregistrerFormulaireArticleForm()
     return render(request, 'enregistrer_formulaire_article.html', {'form': form})

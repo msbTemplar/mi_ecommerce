@@ -6,8 +6,8 @@
         <header class="bg-dark py-5">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">Checkout</h1>
-                    <p class="lead fw-normal text-white-50 mb-0">Review your order.......</p>
+                    <h1 class="display-4 fw-bolder">Completer Votre Commande</h1>
+                    <p class="lead fw-normal text-white-50 mb-0"></p>
                 </div>
             </div>
         </header>
@@ -18,18 +18,18 @@
                     <div class="col-md-6 offset-md-3 mt-3 mb-3">
                         <div class="card">
                             <div class="card-header">
-                              Order Summary
+                              Votre Commande
                             </div>
                             <div class="card-body">
                                 {% for product in cart_products %}
                                     {{product.name}}: 
                                     {% if product.is_sale %}
-                                    $ {{ product.sale_price }}
+                                     {{ product.sale_price }} Dhs
                                     {% else %}
-                                    $ {{ product.price }}
+                                     {{ product.price }} Dhs
                                     {% endif %}
                                     <br>
-                                    Quantity:
+                                    Quantité:
                                     {% for key, value in quantities.items %}
                                           {% if key == product.id|slugify %}
                                           {{ value }}
@@ -38,14 +38,14 @@
                                       <br><br>
                                 {% endfor %}
                               
-                                <strong>Total:  $ {{totals}} </strong>
+                                <strong>Total:   {{totals}} Dhs </strong>
                                 <br>
-                                <a href="{% url 'cart_summary' %}" class="btn btn-outline-primary mt-3">Update Items</a>
+                                <a href="{% url 'cart_summary' %}" class="btn btn-outline-primary mt-3">Changer Article</a>
                             </div>
                           </div>
                           <div class="card mt-3">
                             <div class="card-header">
-                              Shipping Info
+                              Informations Personnelles 
                             </div>
                             <div class="card-body">
                               <form action="{% url 'billing_info' %}" method="post">
@@ -54,7 +54,7 @@
                             
                             </div>
                           </div>
-                          <button type="submit" class="btn btn-primary mt-3 w-100">Continue to Billing</button>
+                          <button type="submit" class="btn btn-primary mt-3 w-100">Continuer</button>
                         </form>
                     </div>
                 </div>

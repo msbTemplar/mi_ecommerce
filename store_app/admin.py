@@ -11,8 +11,11 @@ admin.site.register(models.Customer)
 admin.site.register(models.Product)
 admin.site.register(models.Order)
 admin.site.register(models.Profile)
-
-
+admin.site.register(models.Charge)
+admin.site.register(models.FormulaireArticle)
+admin.site.register(models.FormulaireCharge)
+#About
+admin.site.register(models.About)
 # mist profile info and user info
 
 class ProfileInline(admin.StackedInline):

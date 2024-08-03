@@ -6,8 +6,8 @@
         <header class="bg-dark py-5">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">Shopping Cart</h1>
-                    <p class="lead fw-normal text-white-50 mb-0">View your Cart.......</p>
+                    <h1 class="display-4 fw-bolder">Voir Vos Achat</h1>
+                    <p class="lead fw-normal text-white-50 mb-0"></p>
                 </div>
             </div>
         </header>
@@ -45,19 +45,19 @@
                                                 <div class="bi-star-fill"></div>
                                             </div>
                                                <!-- Product price-->
-                                               <strike> ${{ product.price }} </strike>
+                                               <strike> {{ product.price }} Dhs </strike>
                                                &nbsp;
-                                               ${{ product.sale_price }}
+                                               {{ product.sale_price }} Dhs 
                                                
                                                
                               {% else %}
-                              ${{ product.price }}
+                              {{ product.price }} Dhs 
                                                     
                               {% endif %}
                               <br><br>
                               <div class="row justify-content-center">
                                 <div class="col-md-2">
-                                Quantity:
+                                Quantité:
                                 </div>
                                 <div class="col-md-2">
                                   <select class="form-select" aria-label="Default select example" id="select{{product.id}}">
@@ -79,16 +79,16 @@
                             </center>
                               <br>
                               <a href="{% url 'home' %}" class=" btn btn-primary w-100">Home</a>
-                              <button type="button" data-index="{{product.id}}" class="btn btn-warning w-100 mt-2 update-cart">Update</button>
-                              <button type="button" data-index="{{product.id}}" class="btn btn-danger w-100 mt-2 delete-product">Remove</button>
+                              <button type="button" data-index="{{product.id}}" class="btn btn-warning w-100 mt-2 update-cart">Changer la quantité</button>
+                              <button type="button" data-index="{{product.id}}" class="btn btn-danger w-100 mt-2 delete-product">Eliminer Article</button>
                             </div>
                           </div>
                         </div>
                       </div>
                       <br>
                     {% endfor %}
-                    <strong class="row justify-content-center">Total: ${{ totals }} </strong>
-                    <a href="{% url 'checkout' %}" class="btn btn-success w-100 mt-2" >Checkout</a>
+                    <strong class="row justify-content-center">Total: {{ totals }} Dhs </strong>
+                    <a href="{% url 'checkout' %}" class="btn btn-success w-100 mt-2" >Suivant</a>
                     {% else %}
                     <p>
                         There's Nothing in your Cart......

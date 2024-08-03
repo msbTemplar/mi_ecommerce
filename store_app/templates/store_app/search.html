@@ -5,7 +5,7 @@
  <header class="bg-dark py-5">
     <div class="container px-4 px-lg-5 my-5">
         <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">Search Product</h1>
+            <h1 class="display-4 fw-bolder">Chercher un Article</h1>
             <p class="lead fw-normal text-white-50 mb-0">Find what You're looking for.....</p>
         </div>
     </div>
@@ -16,16 +16,16 @@
         <div class="col">
             <div class="card m-5">
                 <div class="card-header">
-                  Searched Products
+                  Articles Cherchés
                 </div>
                 <div class="card-body">
                   <form action="{% url 'search' %}" method="post">
                     {% csrf_token %}
                     <div class="mb-3">
                         
-                        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Search for Products" name="searched">
+                        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Chcercher un article" name="searched">
                       </div>
-                      <button type="submit" class="btn btn-primary">Search Products</button>
+                      <button type="submit" class="btn btn-primary">Articles Cherchés</button>
                   </form>
                 </div>
               </div>

@@ -19,7 +19,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.0/sweetalert2.css" integrity="sha512-ISg50yWmBgHf+gNWR8QPKuEzKzltcN5QOhu2CMTRtT+VXShvkhn1fn2I21dYo0Pz4362iyMNezNXIOpOsZkcWw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        
+      
     </head>
     <body>
         <!-- Navigation-->
@@ -44,6 +44,7 @@
         <!-- Footer-->
         <footer class="py-5 bg-dark">
             <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2024</p></div>
+         
         </footer>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -184,6 +185,38 @@
                 });
               
               };
+
+              function confirmAboutDelete(id) {
+                Swal.fire({
+                    title: "Tu es sure de vouloir eliminer le formulaire about?",
+                    text: "C'est un procéde irreversible!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Oui Eliminer!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Aquí se muestra el segundo SweetAlert para informar sobre la eliminación
+                        Swal.fire({
+                            title: "Eliminée!",
+                            text: "Le Formulaire about seleccionnée a été eliminer correctement.",
+                            icon: "success",
+                        }).then((isConfirmed) => {
+                            // Verificar si el usuario ha confirmado el segundo SweetAlert
+                            if (isConfirmed) {
+                                console.log("el id es : " + id);
+                                // Aquí redireccionamos al usuario para eliminar el registro
+                                window.location.href = `/eliminer_about/${id}`; // Asegúrate de que esta URL sea correcta
+                            } else {
+                                Swal.fire("Cancelled", "Le formulaire about seleccionnée n'a pas été eliminer correctement :)", "error");
+                            }
+                        });
+                    }
+                });
+            };
+
+         
         
         </script>
     </body>

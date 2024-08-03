@@ -1,0 +1,20 @@
+{% extends 'store_app/base.html' %} {% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+<h1>Enregister Shipping Address</h1>
+<br /><br />
+
+<form action="" method="post" enctype="multipart/form-data" id="registroForm">
+  {% csrf_token %}
+  {{ form.as_p }}
+  
+  <input type="submit" value="Submit" class="btn btn-primary" />
+</form>
+
+<br /><br />
+</div>
+</div>
+</div>
+{% endblock %}

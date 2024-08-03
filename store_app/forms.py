@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from django import forms
-from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category
+from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category,About
 
 class UserInfoForm(forms.ModelForm):
     phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Phone'}), required=False)
@@ -121,7 +121,7 @@ class EnregistrerFormulaireArticleForm(forms.ModelForm):
             'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix', 'id': 'id_prix', 'min': '0', 'step': '0.01'}),
             'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
             'vendu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'category': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Category'}),
+            'category': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Category', 'required': True, 'name': 'category'}),
             'image_charge': forms.ClearableFileInput(attrs={'class': 'form-control', 'name': 'files', 'id': 'formFile'}),
         }
 
@@ -130,3 +130,15 @@ class EnregistrerCategoryForm(forms.ModelForm):
         model = Category
         fields = '__all__'
         widgets = {'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire la charge','name':'name_category'}),}
+        
+
+class AboutForm(forms.ModelForm):
+    class Meta:
+        model = About
+        fields = ['description']  # Incluye los campos que deseas mostrar en el formulario
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Introducir la descripción',
+                'rows': 4,  # Ajusta el número de filas según sea necesario
+            }),}
