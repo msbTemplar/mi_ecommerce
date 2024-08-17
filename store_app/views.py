@@ -1,10 +1,10 @@
 from django.shortcuts import render,redirect
-from .models import Product,Category, Profile,Charge,FormulaireCharge, FormulaireArticle,About
+from .models import Product,Category, Profile,Charge,FormulaireCharge, FormulaireArticle,About, FormulaireClient
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm,EnregistrerCategoryForm,AboutForm
+from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm,EnregistrerCategoryForm,AboutForm, EnregistrerFormulaireClientForm
 from django import forms
 from django.db.models import Q
 import json
@@ -548,9 +548,28 @@ def liste_des_formulaire_articles(request):
         return response
     return render(request, 'store_app/la_lista_des_formulaire_articles.html', context)
 
-def enregistrer_formulaire_article_view(request):
+def enregistrer_formulaire_article_view(request, pk=None):
+    if pk:
+        article = get_object_or_404(FormulaireArticle, pk=pk)
+        form = EnregistrerFormulaireArticleForm(instance=article)
+    else:
+        # Obtener el próximo ID disponible
+        #next_id = FormulaireArticle.objects.count() + 1
+        #ref_article_value = f"OZ{next_id:03d}"
+        
+        form = EnregistrerFormulaireArticleForm()
+    
     if request.method == 'POST':
-        form = EnregistrerFormulaireArticleForm(request.POST, request.FILES)
+        if pk:
+            # Editar un artículo existente
+            article = get_object_or_404(FormulaireArticle, pk=pk)
+            form = EnregistrerFormulaireArticleForm(request.POST, request.FILES, instance=article)
+        else:
+            # Crear un nuevo artículo
+            form = EnregistrerFormulaireArticleForm(request.POST, request.FILES)
+            # Establecer el valor de ref_article después de validar el formulario
+            #form.initial = {'ref_article': ref_article_value}
+        
         if form.is_valid():
             try:
             
@@ -561,6 +580,8 @@ def enregistrer_formulaire_article_view(request):
                 #name = request.user.username
                 #file = request.FILES['file']
                 # Verificar que la categoría existe
+                
+                
                 category_id = request.POST.get('category')
                 print("le categori_id es :" + category_id)
                 
@@ -577,8 +598,13 @@ def enregistrer_formulaire_article_view(request):
                 instance.save()
                 category = instance.category
                 print("esta categoria :" + category.name)
+                ref_article=instance.ref_article
                 nom = instance.nom
                 description=instance.description
+                cout_revient_ozaz=instance.cout_revient_ozaz
+                cout_revient_maallem=instance.cout_revient_maallem
+                cout_revient_total=instance.cout_revient_total
+                
                 prix=instance.prix
                 cree_le = instance.cree_le
                 vendu=instance.vendu
@@ -588,7 +614,7 @@ def enregistrer_formulaire_article_view(request):
                 email_message = EmailMessage(
                     subject=f'Contact Form: {date} - {nom} - {prix}',
                     #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
-                    body=f'Nom du Article: {nom}\nDescription du article: {description}\nPrix de article: {prix}\nDate creation article: {cree_le}\nEtat du article: {vendu}\nCategory: {category.name}',
+                    body=f'Reference du Article: {ref_article}\nNom du Article: {nom}\nDescription du article: {description}\nPrix de article: {prix}\nDate creation article: {cree_le}\nEtat du article: {vendu}\nCategory: {category.name}',
                     
                     from_email=settings.EMAIL_HOST_USER,
                     to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
@@ -608,6 +634,9 @@ def enregistrer_formulaire_article_view(request):
                 # Enviar el email
                 email_message.send(fail_silently=False)
                 form.save()
+                print(f"Form Data: {form.cleaned_data}")
+                print(f"Saved Instance: {instance.ref_article}")
+                
                 return redirect('liste_des_formulaire_articles')  # Cambia esto por la vista a la que deseas redirigir después de guardar
             except Category.DoesNotExist as e:
                 return HttpResponse(f"Error: {str(e)}")
@@ -765,3 +794,139 @@ def eliminer_la_category(request, id_category):
     category.delete()
     messages.success(request, "La category a été eliminer correctement.")
     return redirect('liste_des_categories')  # Reemplaza 'nombre_de_tu_vista' con el nombre de tu vista principal
+
+
+def liste_des_formulaire_clients(request):
+    # venue_list = Venue.objects.all().order_by('?')
+    la_lista_des_formulaire_clients = FormulaireClient.objects.all()
+
+    name = request.user.username
+    # set pagination
+    
+    p = Paginator(la_lista_des_formulaire_clients, 5)
+    page = request.GET.get('page')
+    tous_les_formulaire_clients = p.get_page(page)
+    nums = "a" * tous_les_formulaire_clients.paginator.num_pages
+    
+    print("hola : " + str(tous_les_formulaire_clients.paginator.num_pages))
+    
+    context = {'la_lista_des_formulaire_clients': la_lista_des_formulaire_clients, 'tous_les_formulaire_clients': tous_les_formulaire_clients, 'nums': nums, 'name':name}
+    
+    if request.GET.get('export') == 'excel':
+        # Crear un libro de trabajo y una hoja
+        today = datetime.today()
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Formulaire Client"
+        
+        # Crear una nueva hoja para la tabla
+        #ws2 = wb.create_sheet(title="Formulaire Concierge")
+
+        # Agregar los encabezados de la tabla
+        headers = ['Nom', 'Prenom', 'Tel', 'Email','Addresse', 'Description', 'Cree le']
+        #if request.user.is_superuser:
+            #headers.extend(['Imprimer pdf', 'Actualiser', 'Eliminer'])
+        ws.append(headers)
+
+        # Aplicar negrita a los encabezados
+        for cell in ws[1]:
+            cell.font = Font(bold=True)
+
+        # Agregar los datos de la tabla
+        for item in la_lista_des_formulaire_clients:
+            row = [
+                item.nom,
+                item.prenom,
+                item.tel,
+                item.email,
+                item.addresse,
+                item.description,
+                item.cree_le.strftime('%Y-%m-%d'),
+               
+            ]
+            #if request.user.is_superuser:
+                #row.extend(['Imprimer', 'Actualiser', 'Eliminer'])
+            ws.append(row)
+            
+                
+        # Crear una respuesta HTTP con el archivo Excel
+        filename = f"liste_clients_{today.strftime('%Y%m%d_%H%M%S')}.xlsx"
+        response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        #response['Content-Disposition'] = 'attachment; filename=lista_paie_concierge.xlsx'
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        
+        return response
+    return render(request, 'store_app/la_lista_des_formulaire_clients.html', context)
+
+def enregistrer_formulaire_client_view(request):
+    if request.method == 'POST':
+        form = EnregistrerFormulaireClientForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+            
+                #form.save()
+                #titulo_serie = request.POST['titulo_serie']
+                #serie_o_pelicula = request.POST['serie_o_pelicula']
+                #plataforma = request.POST['plataforma']
+                #name = request.user.username
+                #file = request.FILES['file']
+                # Verificar que la categoría existe
+
+                instance = form.save(commit=False)
+                instance.save()
+                
+                nom = instance.nom
+                prenom=instance.prenom
+                tel=instance.tel
+                email=instance.email 
+                addresse=instance.addresse
+                description=instance.description
+                cree_le = instance.cree_le
+            
+                #files = request.FILES.getlist('files')
+                email_message = EmailMessage(
+                    subject=f'Contact Form: {date} - {nom} - {prenom}',
+                    #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
+                    body=f'Nom : {nom}\nPrenom: {prenom}\Tel: {tel}\Email: {email}\Addresse: {addresse}\nDescription: {description}\nDate creation client: {cree_le}',
+                    
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                    reply_to=['msebti2@gmail.com']
+                )
+                # Adjuntar cada archivo
+                #for file in files:
+                    #email_message.attach(file.name, file.read(), file.content_type)
+                
+                # Adjuntar el archivo
+                #email_message.attach(file.name, file.read(), file.content_type)
+
+                # Enviar el email
+                email_message.send(fail_silently=False)
+                form.save()
+                return redirect('liste_des_formulaire_clients')  # Cambia esto por la vista a la que deseas redirigir después de guardar
+            except Category.DoesNotExist as e:
+                return HttpResponse(f"Error: {str(e)}")
+        else:
+            # Imprimir errores de formulario para depuración
+            return HttpResponse(f"Errores en el formulario: {form.errors}")
+        
+    else:
+        form = EnregistrerFormulaireClientForm()
+    return render(request, 'enregistrer_formulaire_client.html', {'form': form})
+
+
+def actualiser_formulaire_client(request, id_formulaire_client):
+    formulaire_client = FormulaireClient.objects.get(pk=id_formulaire_client)
+    form = EnregistrerFormulaireClientForm(request.POST or None, request.FILES or None,  instance=formulaire_client)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Le formulaire client a été actualisé correctement.")
+        return redirect('liste_des_formulaire_clients')
+    context = {'formulaire_client': formulaire_client, 'form': form}
+    return render(request, 'store_app/actualizer_formulaire_client.html', context)
+
+def eliminer_formulaire_client(request, id_formulaire_client):
+    formulaire_client = get_object_or_404(FormulaireClient, id=id_formulaire_client)
+    formulaire_client.delete()
+    messages.success(request, "Le formulaire client a été eliminer correctement.")
+    return redirect('liste_des_formulaire_clients')  # Reemplaza 'nombre_de_tu_vista' con el nombre de tu vista principal

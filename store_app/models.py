@@ -115,6 +115,7 @@ def validate_file_extension(value):
 class FormulaireCharge(models.Model):
     date=models.DateTimeField('Date' , null=True, blank=True)
     charge=models.ForeignKey(Charge, blank=True, null=True, on_delete=models.CASCADE)
+    description_charge = models.TextField('Description Charge',max_length=15000, null=True, blank=True)
     prix = models.DecimalField('Prix', max_digits=10, decimal_places=2 , null=True, blank=True)  # Agregar max_digits y decimal_places
     #image_charge = models.ImageField(null=True, blank=True, upload_to="images/")
     image_charge = models.FileField('Fichier de charge', null=True, blank=True, upload_to="uploads/",
@@ -124,9 +125,14 @@ class FormulaireCharge(models.Model):
         return f"FormulaireCharge Charge {self.charge} date {self.date} avec le montant {self.prix} "
 
 class FormulaireArticle(models.Model):
+    ref_article = models.CharField('Référence Article', max_length=50, editable=True, unique=True, blank=True)
+    
     nom=models.CharField('Nom Article', max_length=120, blank=True, null=True)
     description = models.TextField('Description Article',max_length=15000, null=True, blank=True)
-    prix = models.DecimalField('Prix', max_digits=10, decimal_places=2, null=True, blank=True)  # Agregar max_digits y decimal_places
+    cout_revient_ozaz = models.DecimalField('Coût revient Ozaz', max_digits=10, decimal_places=2, null=True, blank=True)
+    cout_revient_maallem = models.DecimalField('Coût revient Maallem', max_digits=10, decimal_places=2, null=True, blank=True)
+    cout_revient_total = models.DecimalField('Coût revient Total', max_digits=10, decimal_places=2, null=True, blank=True)
+    prix = models.DecimalField('Prix Estimé', max_digits=10, decimal_places=2, null=True, blank=True)  # Agregar max_digits y decimal_places
     cree_le=models.DateTimeField('Cree le',default=datetime.datetime.today, null=True, blank=True)
     vendu= models.BooleanField('Vendu',default=False, null=True, blank=True)
     #category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1 , null=True, blank=True)
@@ -135,6 +141,17 @@ class FormulaireArticle(models.Model):
     #image_charge = models.ImageField(null=True, blank=True, upload_to="images/")
     image_charge = models.FileField('Article chargé', null=True, blank=True, upload_to="uploads/",
                                     validators=[validate_file_extension])
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # Crear un nuevo artículo
+            super(FormulaireArticle, self).save(*args, **kwargs)
+            self.ref_article = f"OZ{self.pk:03d}"
+            super(FormulaireArticle, self).save(*args, **kwargs)
+        else:
+            # Editar un artículo existente
+            super(FormulaireArticle, self).save(*args, **kwargs)
+    
     
     def __str__(self) -> str:  # Agregar un método __str__ para esta clase también
         return f"FormulaireArticle Nom Article {self.nom} date {self.cree_le} avec le montant {self.prix} "
@@ -194,3 +211,16 @@ def delete_product(sender, instance, **kwargs):
         print(f"Product associated with FormulaireArticle '{instance.nom}' deleted.")
     except Exception as e:
         print(f"Error deleting product: {str(e)}")
+
+
+class FormulaireClient(models.Model):
+    nom=models.CharField('Nom', max_length=120, blank=True, null=True)
+    prenom=models.CharField('Prenom', max_length=120, blank=True, null=True)
+    tel=models.CharField('Tel', max_length=120, blank=True, null=True)
+    email=models.CharField('Email', max_length=120, blank=True, null=True)
+    addresse = models.TextField('Addresse',max_length=15000, null=True, blank=True)
+    description = models.TextField('Description',max_length=15000, null=True, blank=True)
+    cree_le=models.DateTimeField('Cree le',default=datetime.datetime.today, null=True, blank=True)
+        
+    def __str__(self) -> str:  # Agregar un método __str__ para esta clase también
+        return f"FormulaireClient Nom {self.nom} - Prenom {self.prenom} cree le {self.cree_le}  "

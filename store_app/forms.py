@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from django import forms
-from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category,About
+from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category,About,FormulaireClient
 
 class UserInfoForm(forms.ModelForm):
     phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Phone'}), required=False)
@@ -101,7 +101,7 @@ class EnregistrerFormulaireChargeForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Date', 'type': 'date'}),
             'charge': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Charge'}),
-            
+            'description_charge': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Description Charge'}),
             'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Montant', 'id': 'id_montant', 'min': '0', 'step': '0.01'}),
             'image_charge': forms.ClearableFileInput(attrs={'class': 'form-control', 'name': 'files', 'id': 'formFile'}),
         }
@@ -116,14 +116,34 @@ class EnregistrerFormulaireArticleForm(forms.ModelForm):
         model = FormulaireArticle
         fields = '__all__'
         widgets = {
+            'ref_article': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire le nom','name':'nom'}),
             'description': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Description Article'}),
+            'cout_revient_ozaz': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Ozaz', 'id': 'id_cout_revient_ozaz', 'min': '0', 'step': '0.01'}),
+            'cout_revient_maallem': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Maallem', 'id': 'id_cout_revient_maallem', 'min': '0', 'step': '0.01'}),
+            'cout_revient_total': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Total', 'id': 'id_cout_revient_total', 'min': '0', 'step': '0.01' , 'readonly': 'readonly'}),
             'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix', 'id': 'id_prix', 'min': '0', 'step': '0.01'}),
             'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
             'vendu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'category': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Category', 'required': True, 'name': 'category'}),
             'image_charge': forms.ClearableFileInput(attrs={'class': 'form-control', 'name': 'files', 'id': 'formFile'}),
         }
+    def __init__(self, *args, **kwargs):
+        super(EnregistrerFormulaireArticleForm, self).__init__(*args, **kwargs)
+        print(self.fields.keys())
+        if 'ref_article' in self.fields:
+            self.fields['ref_article'].widget.attrs['readonly'] = True
+            self.fields['ref_article'].widget.attrs['class'] = 'form-control'
+            
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Obtener el último valor de codeFormCotiz de la base de datos
+        last_code = FormulaireArticle.objects.order_by('-id').first()
+        if last_code and last_code.id is not None:
+            next_code = f"OZ{(last_code.id + 1):03d}"
+        else:
+            next_code = 2205
+        self.fields['ref_article'].initial = next_code
 
 class EnregistrerCategoryForm(forms.ModelForm):
     class Meta:
@@ -142,3 +162,18 @@ class AboutForm(forms.ModelForm):
                 'placeholder': 'Introducir la descripción',
                 'rows': 4,  # Ajusta el número de filas según sea necesario
             }),}
+
+class EnregistrerFormulaireClientForm(forms.ModelForm):
+    class Meta:
+        model = FormulaireClient
+        fields = '__all__'
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire le nom','name':'nom'}),
+            'prenom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire le prenom','name':'prenom'}),
+            'tel': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire le telephone','name':'tel'}),
+            'email': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire le email','name':'email'}),
+            'addresse': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Introduire addresse'}),
+            'description': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Introduire Description'}),
+            'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
+            
+        }

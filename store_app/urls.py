@@ -60,6 +60,10 @@ urlpatterns = [
     path('liste_des_categories', views.liste_des_categories, name='liste_des_categories'),
     path('actualiser_la_category/<id_category>', views.actualiser_la_category, name='actualiser_la_category'),
     path('eliminer_la_category/<id_category>', views.eliminer_la_category, name='eliminer_la_category'),
+    path('liste_des_formulaire_clients', views.liste_des_formulaire_clients, name='liste_des_formulaire_clients'),
+    path('enregistrer_formulaire_client/', views.enregistrer_formulaire_client_view, name='enregistrer_formulaire_client'),
+    path('actualiser_formulaire_client/<id_formulaire_client>', views.actualiser_formulaire_client, name='actualiser_formulaire_client'),
+    path('eliminer_formulaire_client/<id_formulaire_client>', views.eliminer_formulaire_client, name='eliminer_formulaire_client'),
 
 
 ]

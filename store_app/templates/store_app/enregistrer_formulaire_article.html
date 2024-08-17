@@ -6,6 +6,7 @@
 
 <form action="" method="post" enctype="multipart/form-data" id="registroForm">
   {% csrf_token %}
+ 
   {{ form.as_p }}
   
   <input type="submit" value="Submit" class="btn btn-primary" />
@@ -13,4 +14,23 @@
 
 <br /><br />
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Selecciona los elementos del formulario
+    const coutRevientOzazInput = document.getElementById('id_cout_revient_ozaz');
+    const coutRevientMaallemInput = document.getElementById('id_cout_revient_maallem');
+    const coutRevientTotalInput = document.getElementById('id_cout_revient_total');
+
+    // Función para actualizar el total
+    function updateTotal() {
+        const coutRevientOzaz = parseFloat(coutRevientOzazInput.value) || 0;
+        const coutRevientMaallem = parseFloat(coutRevientMaallemInput.value) || 0;
+        const total = coutRevientOzaz + coutRevientMaallem;
+        coutRevientTotalInput.value = total.toFixed(2); // Asegúrate de que tenga dos decimales
+    }
+    // Agrega eventos para actualizar el total cuando cambien los inputs
+    coutRevientOzazInput.addEventListener('input', updateTotal);
+    coutRevientMaallemInput.addEventListener('input', updateTotal);
+});
+</script>
 {% endblock %}

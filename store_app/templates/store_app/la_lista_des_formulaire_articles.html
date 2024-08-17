@@ -19,9 +19,13 @@
   <table class="table table-striped table-hover table-bordered border-primary shadow rounded custom-table">
     <thead>
       <tr>
+        <th scope="col" class="text-center">Ref Article</th>
         <th scope="col" class="text-center">Nom Article</th>
         <th scope="col" class="text-center">Description Article</th>
-        <th scope="col" class="text-center">Prix</th>
+        <th scope="col" class="text-center">Coût revient Ozaz</th>
+        <th scope="col" class="text-center">Coût revient Maallem</th>
+        <th scope="col" class="text-center">Coût revient Total</th>
+        <th scope="col" class="text-center">Prix Estimé</th>
         <th scope="col" class="text-center">Cree le</th>
         <th scope="col" class="text-center">Vendu</th>
         <th scope="col" class="text-center">Category</th>
@@ -38,12 +42,15 @@
     <tbody>
       {% for formulaire_article in la_lista_des_formulaire_articles %}
       <tr>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.ref_article}}</th>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.nom}}</th>
-       
         <th>
           <a class="btn btn-primary" href="#" onclick="verDescripcion('{{ formulaire_article.id }}','{{formulaire_article.description}}','{{formulaire_article.image_charge.url}}')">Ver Descripcion 
             {{ formulaire_article.id }}</a>
         </th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.cout_revient_ozaz}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.cout_revient_maallem}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.cout_revient_total}}</th>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.prix}}</th>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.cree_le|date:"Y-m-d"}}</th>
         <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_article.vendu}}</th>
@@ -98,7 +105,7 @@
     </tbody>
     <tfoot>
       <tr>
-          <th colspan="2" class="text-right">Total Montant</th>
+          <th colspan="3" class="text-right">Total Montant</th>
           <th class="text-wrap" style="max-width: 150px;" scope="row">{{ total_montant|floatformat:2 }}</th>
           <th colspan="{% if user.is_superuser %}4{% else %}2{% endif %}"></th>
       </tr>
