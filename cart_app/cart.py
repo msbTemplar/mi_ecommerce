@@ -104,6 +104,7 @@ class Cart():
         product_ids=self.cart.keys()
         # use ids to lookup products in db model
         products = Product.objects.filter(id__in=product_ids)
+        print("produts: son : " + str(products)) 
         #return our proucts
         return products
     

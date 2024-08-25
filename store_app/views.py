@@ -1,10 +1,10 @@
 from django.shortcuts import render,redirect
-from .models import Product,Category, Profile,Charge,FormulaireCharge, FormulaireArticle,About, FormulaireClient
+from .models import Product,Category, Profile,Charge,FormulaireCharge, FormulaireArticle,About, FormulaireClient, FormulaireVente
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm,EnregistrerCategoryForm,AboutForm, EnregistrerFormulaireClientForm
+from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm, UserInfoForm, EnregistrerChargeForm,EnregistrerFormulaireChargeForm,EnregistrerFormulaireArticleForm,EnregistrerCategoryForm,AboutForm, EnregistrerFormulaireClientForm, EnregistrerFormulaireVenteForm
 from django import forms
 from django.db.models import Q
 import json
@@ -171,12 +171,27 @@ def category(request, foo):
 
 def product(request, pk):
     product= Product.objects.get(id=pk)
+    
     context={'product':product}
+    #context = {'product': product, 'quantite_product': product.quantite_product}
+    # quantity_range = range(1, product.quantite_product + 1)
+    # context = {'product': product, 'quantity_range': quantity_range}
+
     return render(request, 'store_app/product.html',context)
     
 
 def home(request):
     products= Product.objects.all()
+    # for product in products:
+    #     article = FormulaireArticle.objects.get(nom=product.name)
+    #     print("Product name: " + product.name)
+    
+    # matching_products = Product.objects.filter(name__in=FormulaireArticle.objects.values('nom'))
+
+    # # Iterar sobre los productos encontrados y mostrar sus nombres
+    # for product in matching_products:
+    #     print("Product name: " + product.name)
+        
     context={'products':products}
     return render(request, 'store_app/home.html',context)
 
@@ -513,7 +528,7 @@ def liste_des_formulaire_articles(request):
         #ws2 = wb.create_sheet(title="Formulaire Concierge")
 
         # Agregar los encabezados de la tabla
-        headers = ['Nom Article', 'Description Article', 'Prix','Cree le','Vendu', 'Nom Fichier']
+        headers = ['Ref Article', 'Quantité Article','Nom Article', 'Description Article', 'Prix','Cree le','Vendu', 'Nom Fichier']
         #if request.user.is_superuser:
             #headers.extend(['Imprimer pdf', 'Actualiser', 'Eliminer'])
         ws.append(headers)
@@ -525,7 +540,10 @@ def liste_des_formulaire_articles(request):
         # Agregar los datos de la tabla
         for item in la_lista_des_formulaire_articles:
             row = [
+                item.ref_article,
+                item.quantite_article,
                 item.nom,
+                
                 item.description,
                 item.prix,
                 item.cree_le.strftime('%Y-%m-%d'),
@@ -668,11 +686,39 @@ def eliminer_formulaire_article(request, id_formulaire_article):
 def liste_situation_caisse(request):
     # venue_list = Venue.objects.all().order_by('?')
     #la_lista_formulaire_cotization = FormulaireCotization.objects.all()
-    la_lista_formulaire_article = FormulaireArticle.objects.filter(vendu=True)
+    la_lista_formulaire_article = FormulaireArticle.objects.all()
     total_montant_article = la_lista_formulaire_article.aggregate(total=Sum('prix'))['total']
     
+   
+     
     la_lista_des_formulaire_charges = FormulaireCharge.objects.all()
     total_montant_charge = la_lista_des_formulaire_charges.aggregate(total=Sum('prix'))['total']
+    
+    la_lista_des_formulaire_ventes = FormulaireVente.objects.filter(hidden_vendu_vente=True)
+    #la_lista_des_formulaire_ventes = FormulaireVente.objects.all()
+    total_montant_ventes = la_lista_des_formulaire_ventes.aggregate(total=Sum('prix_vente'))['total']
+    
+    montant_por_vente = {}
+    for formulaire_vente in la_lista_des_formulaire_ventes:
+        if formulaire_vente.etat_final == 'Espece':
+            if 'Espece' in montant_por_vente:
+                montant_por_vente['Espece'] += formulaire_vente.prix_vente
+            else:
+                montant_por_vente['Espece'] = formulaire_vente.prix_vente
+        else:
+            if 'Non_Espece' in montant_por_vente:
+                montant_por_vente['Non_Espece'] += formulaire_vente.prix_vente
+            else:
+                montant_por_vente['Non_Espece'] = formulaire_vente.prix_vente
+
+    # Convertir el diccionario en listas para usar en la plantilla
+    montant_por_vente_list = [{'espece': key, 'prix_vente': value} for key, value in montant_por_vente.items()]
+
+    if total_montant_ventes is None  :
+        total_montant_ventes = 0
+
+  
+    
     if total_montant_article is None  :
         total_montant_article = 0
     
@@ -682,15 +728,24 @@ def liste_situation_caisse(request):
     #total =  total_montant_cotizacion - total_montant_charge   
     # Calculating total only if both values are not None
     if total_montant_article is not None and total_montant_charge is not None :
-        total = total_montant_article - total_montant_charge
+        total = total_montant_ventes - total_montant_charge
     else:
         total = 0  # Default to 0 if either value is None
     name = request.user.username
     
     
     
-    context = {'la_lista_formulaire_article': la_lista_formulaire_article, 'la_lista_des_formulaire_charges': la_lista_des_formulaire_charges, 'name':name, 'total_montant_article': total_montant_article,'total_montant_charge': total_montant_charge, 'total' : total,}
-    
+    context = {
+        
+        'la_lista_formulaire_article': la_lista_formulaire_article, 
+        'la_lista_des_formulaire_charges': la_lista_des_formulaire_charges, 
+        'name': name, 
+        'total_montant_article': total_montant_article,
+        'total_montant_charge': total_montant_charge, 
+        'total': total, 
+        'total_montant_ventes': total_montant_ventes,
+        'montant_por_vente_list': montant_por_vente_list
+    }    
     if request.GET.get('export') == 'excel':
         # Crear un libro de trabajo y una hoja
         today = date.today()
@@ -712,10 +767,10 @@ def liste_situation_caisse(request):
         # Aplicar negrita a toda la columna A
         for cell in ws['A']:
             cell.font = Font(bold=True)
-        
+        filename = f"situation_caisse_{today.strftime('%Y%m%d_%H%M%S')}.xlsx"
         # Crear una respuesta HTTP con el archivo Excel
         response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=situation_caisse.xlsx'
+        response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
     
     return render(request, 'store_app/la_lista_situation_caisse.html', context)
@@ -887,7 +942,7 @@ def enregistrer_formulaire_client_view(request):
                 email_message = EmailMessage(
                     subject=f'Contact Form: {date} - {nom} - {prenom}',
                     #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
-                    body=f'Nom : {nom}\nPrenom: {prenom}\Tel: {tel}\Email: {email}\Addresse: {addresse}\nDescription: {description}\nDate creation client: {cree_le}',
+                    body=f'Nom : {nom}\nPrenom: {prenom}\nTel: {tel}\nEmail: {email}\nAddresse: {addresse}\nDescription: {description}\nDate creation client: {cree_le}',
                     
                     from_email=settings.EMAIL_HOST_USER,
                     to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
@@ -930,3 +985,261 @@ def eliminer_formulaire_client(request, id_formulaire_client):
     formulaire_client.delete()
     messages.success(request, "Le formulaire client a été eliminer correctement.")
     return redirect('liste_des_formulaire_clients')  # Reemplaza 'nombre_de_tu_vista' con el nombre de tu vista principal
+
+def remove_timezone(dt):
+    """Elimina la zona horaria de un objeto datetime."""
+    if dt is not None and hasattr(dt, 'tzinfo'):
+        return dt.replace(tzinfo=None)
+    return dt
+
+def liste_des_formulaire_ventes(request):
+    # venue_list = Venue.objects.all().order_by('?')
+    la_lista_des_formulaire_ventes = FormulaireVente.objects.all()
+
+    name = request.user.username
+    # set pagination
+    
+    p = Paginator(la_lista_des_formulaire_ventes, 5)
+    page = request.GET.get('page')
+    tous_les_formulaire_ventes = p.get_page(page)
+    nums = "a" * tous_les_formulaire_ventes.paginator.num_pages
+    
+    print("hola : " + str(tous_les_formulaire_ventes.paginator.num_pages))
+    
+    context = {'la_lista_des_formulaire_ventes': la_lista_des_formulaire_ventes, 'tous_les_formulaire_ventes': tous_les_formulaire_ventes, 'nums': nums, 'name':name}
+    
+    if request.GET.get('export') == 'excel':
+        # Crear un libro de trabajo y una hoja
+        today = datetime.today()
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Formulaire Vente"
+        
+        # Crear una nueva hoja para la tabla
+        #ws2 = wb.create_sheet(title="Formulaire Concierge")
+
+        # Agregar los encabezados de la tabla
+        headers = ['Article Vent Ref','Article Vente Nom', 'Date Vente', 'Client Vente nom', 'Client Vente prenom', 'Description Vente','Category Vente', 'Coût revient Total Vente', 'Prix Estimé', 'Etat Vente', 'Etat Livraison', 'Etat Payement', 'Etat Final', 'vendu_vente', 'Cree le']
+        #if request.user.is_superuser:
+            #headers.extend(['Imprimer pdf', 'Actualiser', 'Eliminer'])
+        ws.append(headers)
+
+        # Aplicar negrita a los encabezados
+        for cell in ws[1]:
+            cell.font = Font(bold=True)
+
+        # Agregar los datos de la tabla
+        for item in la_lista_des_formulaire_ventes:
+            row = [
+                item.article_vente.ref_article,
+                item.article_vente.nom,
+                remove_timezone(item.date_vente),
+                item.client_vente.nom,
+                item.client_vente.prenom,
+                item.description_vente,
+                item.category_vente,
+                item.cout_revient_total_vente,
+                item.prix_vente,
+                item.etat_vente,
+                item.etat_livrer,
+                item.etat_payer,
+                item.etat_final,
+                item.vendu_vente,
+                item.cree_le.strftime('%Y-%m-%d'),
+               
+            ]
+            #if request.user.is_superuser:
+                #row.extend(['Imprimer', 'Actualiser', 'Eliminer'])
+            ws.append(row)
+            
+                
+        # Crear una respuesta HTTP con el archivo Excel
+        filename = f"liste_ventes_{today.strftime('%Y%m%d_%H%M%S')}.xlsx"
+        response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        #response['Content-Disposition'] = 'attachment; filename=lista_paie_concierge.xlsx'
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        
+        return response
+    return render(request, 'store_app/la_lista_des_formulaire_ventes.html', context)
+
+
+def enregistrer_formulaire_vente_view(request):
+    if request.method == 'POST':
+        form = EnregistrerFormulaireVenteForm(request.POST, request.FILES)
+       
+        if form.is_valid():
+            try:
+                print(request.POST)
+                form_data = form.cleaned_data
+                #print(form_data['vendu_vente']) 
+                print("--------------------------")
+                #print("Campos del formulario:", form.fields.keys())
+                #print("Valor de vendu_vente en cleaned_data:", form.cleaned_data.get('vendu_vente'))
+                quantite_vente = form_data['quantite_vente']
+                #print("Datos del formulario:", form.cleaned_data)
+                # Guardar la venta
+                instance = form.save(commit=False)
+                print("Vendu Vente:", form.cleaned_data.get('vendu_vente'))
+                
+                # Verificar la cantidad disponible
+                #quantite_vente = instance.quantite_vente
+                #print("mohammed   " + str(quantite_vente))
+                article_vente = instance.article_vente.ref_article
+                instance.cout_revient_total_vente *= quantite_vente
+                instance.prix_vente *= quantite_vente
+                instance.marge_chifre *= quantite_vente
+                
+                if quantite_vente > instance.article_vente.quantite_article:
+                    messages.error(request, f"La quantité demandée ({quantite_vente}) dépasse la quantité disponible en stock ({article_vente}).")
+                    return render(request, 'enregistrer_formulaire_vente.html', {'form': form})
+                
+                 # Guardar la venta
+                instance.save()
+                
+                #print("Venta guardada:", instance)
+
+                # Actualizar la cantidad del artículo
+                #article_vente.quantite_article -= quantite_vente
+                #article_vente.save()
+                #print("Cantidad del artículo actualizada:", article_vente.quantite_article)
+                
+                          
+
+                # Enviar el email
+                email_message = EmailMessage(
+                    subject=f'Contact Form: {instance.date_vente} - {instance.article_vente.ref_article} - {instance.date_vente}',
+                    body=f'client_vente : {instance.client_vente}\ndescription_vente: {instance.description_vente}\ncategory_vente: {instance.category_vente}\nprix_vente: {instance.prix_vente}\nDate creation client: {instance.cree_le}',
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                    reply_to=['msebti2@gmail.com']
+                )
+                email_message.send(fail_silently=False)
+
+                return redirect('liste_des_formulaire_ventes')
+            except Category.DoesNotExist as e:
+                return HttpResponse(f"Error: {str(e)}")
+            except Exception as e:
+                messages.error(request, f"Une erreur s'est produite: {str(e)}")
+                return render(request, 'enregistrer_formulaire_vente.html', {'form': form})
+        else:
+            messages.error(request, "Il y a des erreurs dans le formulaire. Veuillez corriger les erreurs et réessayer.")
+            return render(request, 'enregistrer_formulaire_vente.html', {'form': form})
+    else:
+        form = EnregistrerFormulaireVenteForm()
+        return render(request, 'enregistrer_formulaire_vente.html', {'form': form})
+
+def enregistrer_formulaire_vente_view2(request):
+    if request.method == 'POST':
+        form = EnregistrerFormulaireVenteForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                quantite_vente = form.cleaned_data['quantite_vente']
+                article_vente = form.cleaned_data['article_vente']
+            
+                #form.save()
+                #titulo_serie = request.POST['titulo_serie']
+                #serie_o_pelicula = request.POST['serie_o_pelicula']
+                #plataforma = request.POST['plataforma']
+                #name = request.user.username
+                #file = request.FILES['file']
+                # Verificar que la categoría existe
+                if quantite_vente > article_vente.quantite_article:
+                    messages.error(request, f"La quantité demandée ({quantite_vente}) dépasse la quantité disponible en stock ({article_vente.quantite_article}).")
+                    return render(request, 'enregistrer_formulaire_vente.html', {'form': form})
+
+                else:
+                    # Guardar la venta
+                    instance = form.save(commit=False)
+                    instance.save()
+                    
+                    #instance = form.save(commit=False)
+                    #instance.save()
+                    
+                    article_vente = instance.article_vente
+                    quantite_vente = instance.quantite_vente
+                    date_vente = instance.date_vente
+                    client_vente = instance.client_vente
+                    description_vente = instance.description_vente
+                    category_vente = instance.category_vente
+                    cout_revient_total_vente = instance.cout_revient_total_vente
+                    prix_vente = instance.prix_vente
+                    etat_vente = instance.etat_vente
+                    etat_livrer = instance.etat_livrer
+                    etat_payer = instance.etat_payer
+                    etat_final = instance.etat_final
+                    cree_le = instance.cree_le
+                
+                    #files = request.FILES.getlist('files')
+                    email_message = EmailMessage(
+                        subject=f'Contact Form: {date} - {article_vente} - {date_vente}',
+                        #body=titulo_serie + " " + serie_o_pelicula + " " +  plataforma,
+                        body=f'client_vente : {client_vente}\ndescription_vente: {description_vente}\ncategory_vente: {category_vente}\nprix_vente: {prix_vente}\nDate creation client: {cree_le}',
+                        
+                        from_email=settings.EMAIL_HOST_USER,
+                        to=['msb.duck@gmail.com', 'msb.tesla@gmail.com', 'msebti2@gmail.com', 'msb.acer@gmail.com'],
+                        reply_to=['msebti2@gmail.com']
+                    )
+                    # Adjuntar cada archivo
+                    #for file in files:
+                        #email_message.attach(file.name, file.read(), file.content_type)
+                    
+                    # Adjuntar el archivo
+                    #email_message.attach(file.name, file.read(), file.content_type)
+
+                    # Enviar el email
+                    email_message.send(fail_silently=False)
+                    form.save()
+                    
+                    return redirect('liste_des_formulaire_ventes')  # Cambia esto por la vista a la que deseas redirigir después de guardar
+            except Category.DoesNotExist as e:
+                return HttpResponse(f"Error: {str(e)}")
+            """ except Exception as e:
+                messages.error(request, f"Une erreur s'est produite: {str(e)}")
+                return render(request, 'enregistrer_formulaire_vente.html', {'form': form}) """
+        
+        else:
+            # Imprimir errores de formulario para depuración
+            #return HttpResponse(f"Errores en el formulario: {form.errors}")
+             # Si el formulario no es válido, mostrar los errores en la misma página del formulario
+            messages.error(request, "Il y a des erreurs dans le formulaire. Veuillez corriger les erreurs et réessayer.")
+            return render(request, 'enregistrer_formulaire_vente.html', {'form': form})
+    
+        
+    else:
+        form = EnregistrerFormulaireVenteForm()
+    return render(request, 'enregistrer_formulaire_vente.html', {'form': form})
+
+def actualiser_formulaire_vente(request, id_formulaire_vente):
+    formulaire_vente = FormulaireVente.objects.get(pk=id_formulaire_vente)
+    form = EnregistrerFormulaireVenteForm(request.POST or None, request.FILES or None,  instance=formulaire_vente)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Le formulaire vente a été actualisé correctement.")
+        return redirect('liste_des_formulaire_ventes')
+    context = {'formulaire_vente': formulaire_vente, 'form': form}
+    return render(request, 'store_app/actualizer_formulaire_vente.html', context)
+
+def eliminer_formulaire_vente(request, id_formulaire_vente):
+    formulaire_vente = get_object_or_404(FormulaireVente, id=id_formulaire_vente)
+    formulaire_vente.delete()
+    messages.success(request, "Le formulaire vente a été eliminer correctement.")
+    return redirect('liste_des_formulaire_ventes')  # Reemplaza 'nombre_de_tu_vista' con el nombre de tu vista principal
+
+def get_article_data(request, pk):
+    try:
+        article = FormulaireArticle.objects.get(pk=pk)
+        data = {
+            'description': article.description,
+            'category': article.category.name,
+            'prix': article.prix,
+            'cout_revient_total': article.cout_revient_total
+        }
+        print( data)
+        return JsonResponse(data)
+    except FormulaireArticle.DoesNotExist:
+        return JsonResponse({'error': 'Article not found'}, status=404)
+
+def get_last_id(request):
+    last_instance = FormulaireVente.objects.all().order_by('id').last()
+    last_id = last_instance.id if last_instance else 0
+    return JsonResponse({'last_id': last_id})

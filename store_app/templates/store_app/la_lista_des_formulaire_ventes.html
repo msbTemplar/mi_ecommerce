@@ -1,0 +1,186 @@
+{% extends 'store_app/base.html' %} 
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-8"><h1>Liste des ventes</h1></div>
+    <div class="col col-4"><h2 class="btn-primary text-center rounded text-warning">Utilizateur connecté(e): 
+      {% if user.is_authenticated %}
+      {{name}}
+      {% else %}
+      Tu n´est pas connécté(e)
+      {% endif %}
+    </h2></div>
+  </div>
+  
+  <!-- antes venue_list-->
+
+  <table class="table table-striped table-hover table-bordered border-primary shadow rounded custom-table">
+    <thead>
+      <tr>
+        <th scope="col" class="text-center">Article Vente</th>
+        <th scope="col" class="text-center">Quantité Vente</th>
+        <th scope="col" class="text-center">Date Vente</th>
+        <th scope="col" class="text-center">Client Vente</th>
+        <th scope="col" class="text-center">Description Vente</th>
+        <th scope="col" class="text-center">Category Vente</th>
+        <th scope="col" class="text-center">Coût revient Total Vente</th>
+        <th scope="col" class="text-center">Prix Estimé</th>
+        <th scope="col" class="text-center">Etat Vente</th>
+        <th scope="col" class="text-center">Etat Livraison</th>
+        <th scope="col" class="text-center">Etat Payement</th>
+        <th scope="col" class="text-center">Etat Final</th>
+        <th scope="col" class="text-center">Vendu</th>
+        <th scope="col" class="text-center">Marge %</th>
+        <th scope="col" class="text-center">Marge En Chifre</th>
+        <th scope="col" class="text-center">Cree le</th>
+       
+        {% if user.is_superuser %}
+        <th scope="col" class="text-center">Actualiser</th>
+        {% endif %}
+        {% if user.is_superuser %}
+        <th scope="col" class="text-center">{% if user.is_superuser %}Eliminer{% endif %}</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for formulaire_vente in la_lista_des_formulaire_ventes %}
+      <tr>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.article_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.quantite_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.date_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.client_vente}}</th>
+        
+       
+       
+        <th>
+          <a class="btn btn-primary" href="#" onclick="verDescripcionVente('{{ formulaire_vente.id }}','{{formulaire_vente.description_vente}}')">Voir Descripcion 
+            {{ formulaire_vente.id }}</a>
+        </th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.category_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.cout_revient_total_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.prix_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.etat_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.etat_livrer}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.etat_payer}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.etat_final}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.hidden_vendu_vente}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.marge_pourcentage}}</th>
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.marge_chifre}}</th>
+       
+        <th class="text-wrap" style="max-width: 150px;" scope="row">{{formulaire_vente.cree_le|date:"Y-m-d"}}</th>
+        
+        {% if user.is_superuser %}
+        <td style="text-align: center;">
+          
+          <a class="btn btn-success" href="{% url 'actualiser_formulaire_vente' formulaire_vente.id %}">Actualiser {{formulaire_vente.id}}</a>
+          
+        </td>
+        {% endif %}
+       
+        {% if user.is_superuser %}
+        <td style="text-align: center;">
+          
+          <a class="btn btn-danger" href="#" onclick="confirmFomulaireVenteDelete('{{ formulaire_vente.id }}')">Eliminer {{formulaire_vente.id}}</a>
+          
+      </td>
+      {% endif %}
+      </tr>
+      {% endfor %}
+      
+    </tbody>
+    <tfoot>
+     
+      {% if user.is_superuser %}
+      <tr>
+        <td colspan="9" class="text-center">
+          <!-- Agrega el botón para exportar a Excel -->
+    <a href="?export=excel" class="btn btn-success">Exportar a Excel</a>
+        </td>
+      </tr>
+      {% endif %}
+  </tfoot>
+  </table> 
+  <br /><br />
+  <br />
+  {% if tous_les_formulaire_ventes.has_previous %}
+  <a class="btn btn-primary" href="?page=1">&laquo; First</a>
+  <a
+    class="btn btn-success"
+    href="?page={{ tous_les_formulaire_ventes.previous_page_number }}"
+    >Previous</a
+  >
+  {% endif %}
+
+  <div class="btn btn-light">
+    Page {{ tous_les_formulaire_ventes.number }} of {{ tous_les_formulaire_ventes.paginator.num_pages }}
+  </div>
+  {% if tous_les_formulaire_ventes.has_next %}
+  <a
+    class="btn btn-danger"
+    href="?page={{tous_les_formulaire_ventes.next_page_number}}"
+    >Next</a
+  >
+  <a
+    class="btn btn-warning"
+    href="?page={{ tous_les_formulaire_ventes.paginator.num_pages }}"
+    >Last &raquo;</a
+  >
+  {% endif %}
+  <br /><br />
+
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+      {% if tous_les_formulaire_ventes.has_previous %}
+      <li class="page-item m-1">
+        <a class="btn btn-primary page-link" href="?page=1">&laquo; First</a>
+      </li>
+      <li class="page-item m-1">
+        <a
+          class="btn btn-success page-link"
+          href="?page={{ tous_les_formulaire_ventes.previous_page_number }}"
+          >Previous</a
+        >
+      </li>
+
+      {% endif %}
+
+      <li class="page-item m-1 page-link">
+        Page {{ tous_les_formulaire_ventes.number }} of {{ tous_les_formulaire_ventes.paginator.num_pages }}
+      </li>
+
+      {% for i in nums %}
+      <li class="page-item m-1">
+        <a class="btn btn-danger page-link" href="?page={{forloop.counter }}"
+          >{{ forloop.counter }}</a
+        >
+      </li>
+      {% endfor %} {% if tous_les_formulaire_ventes.has_next %}
+
+      <li class="page-item m-1">
+        <a
+          class="btn btn-danger page-link"
+          href="?page={{tous_les_formulaire_ventes.next_page_number}}"
+          >Next</a
+        >
+      </li>
+      <li class="page-item m-1">
+        <a
+          class="btn btn-warning page-link"
+          href="?page={{ tous_les_formulaire_ventes.paginator.num_pages }}"
+          >Last &raquo;</a
+        >
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <br />
+
+
+</div>
+{% endblock %}
+
+
+  

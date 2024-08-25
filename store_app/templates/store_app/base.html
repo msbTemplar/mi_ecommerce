@@ -19,7 +19,38 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.0/sweetalert2.css" integrity="sha512-ISg50yWmBgHf+gNWR8QPKuEzKzltcN5QOhu2CMTRtT+VXShvkhn1fn2I21dYo0Pz4362iyMNezNXIOpOsZkcWw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-      
+        <style>
+            body{
+              background: #f4f4f4;
+            }
+            .rating {
+              color: #FFD700; /* Color de las estrellas */
+          }
+          
+          .fas.fa-star,
+          .far.fa-star {
+              font-size: 16px; /* Tamaño de las estrellas */
+              cursor: pointer; /* Cambia el cursor al pasar por encima */
+          }
+          .custom-table-container {
+            overflow-x: auto; /* Permite desplazamiento horizontal si la tabla es demasiado ancha */
+            max-width: 100%; /* Ajusta el ancho máximo al 100% del contenedor */
+          }
+        
+          .custom-table {
+            width: 100%; /* Ajusta el ancho de la tabla al 100% del contenedor */
+          }
+          .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px; /* Ajusta este valor según sea necesario */
+          }
+          .text-wrap {
+            white-space: normal;
+            word-wrap: break-word;
+          }
+          </style>
     </head>
     <body>
         <!-- Navigation-->
@@ -77,6 +108,36 @@
                                 window.location.href = `/eliminer_formulaire_article/${id}`; // Asegúrate de que esta URL sea correcta
                             } else {
                                 Swal.fire("Cancelled", "Le formulaire article seleccionnée n'a pas été eliminer correctement :)", "error");
+                            }
+                        });
+                    }
+                });
+            };
+
+            function confirmFomulaireVenteDelete(id) {
+                Swal.fire({
+                    title: "Tu es sure de vouloir eliminer le formulaire vente?",
+                    text: "C'est un procéde irreversible!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Oui Eliminer!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Aquí se muestra el segundo SweetAlert para informar sobre la eliminación
+                        Swal.fire({
+                            title: "Eliminée!",
+                            text: "Le Formulaire vente seleccionnée a été eliminer correctement.",
+                            icon: "success",
+                        }).then((isConfirmed) => {
+                            // Verificar si el usuario ha confirmado el segundo SweetAlert
+                            if (isConfirmed) {
+                                console.log("el id es : " + id);
+                                // Aquí redireccionamos al usuario para eliminar el registro
+                                window.location.href = `/eliminer_formulaire_vente/${id}`; // Asegúrate de que esta URL sea correcta
+                            } else {
+                                Swal.fire("Cancelled", "Le formulaire vente seleccionnée n'a pas été eliminer correctement :)", "error");
                             }
                         });
                     }
@@ -229,6 +290,20 @@
               
               };
 
+              function verDescripcionVente(id,descripcion,url){
+                console.log("el id es : " + id);
+                Swal.fire({
+                  title: "La Descripción de la Charge",
+                  text: descripcion,
+                  imageUrl: url,
+                  imageWidth: 400,
+                  imageHeight: 200,
+                  imageAlt: "Custom image",
+                });
+              
+              };
+
+
               function verAddresse(id,addresse,url){
                 console.log("el id es : " + id);
                 Swal.fire({
@@ -241,6 +316,8 @@
                 });
               
               };
+
+              
               
               function confirmAboutDelete(id) {
                 Swal.fire({

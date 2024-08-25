@@ -15,6 +15,8 @@ admin.site.register(models.Charge)
 admin.site.register(models.FormulaireArticle)
 admin.site.register(models.FormulaireCharge)
 admin.site.register(models.FormulaireClient)
+admin.site.register(models.FormulaireVente)
+
 #About
 admin.site.register(models.About)
 # mist profile info and user info

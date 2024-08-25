@@ -64,7 +64,12 @@ urlpatterns = [
     path('enregistrer_formulaire_client/', views.enregistrer_formulaire_client_view, name='enregistrer_formulaire_client'),
     path('actualiser_formulaire_client/<id_formulaire_client>', views.actualiser_formulaire_client, name='actualiser_formulaire_client'),
     path('eliminer_formulaire_client/<id_formulaire_client>', views.eliminer_formulaire_client, name='eliminer_formulaire_client'),
-
+    path('liste_des_formulaire_ventes', views.liste_des_formulaire_ventes, name='liste_des_formulaire_ventes'),
+    path('enregistrer_formulaire_vente/', views.enregistrer_formulaire_vente_view, name='enregistrer_formulaire_vente'),
+    path('actualiser_formulaire_vente/<id_formulaire_vente>', views.actualiser_formulaire_vente, name='actualiser_formulaire_vente'),
+    path('eliminer_formulaire_vente/<id_formulaire_vente>', views.eliminer_formulaire_vente, name='eliminer_formulaire_vente'),
+    path('get_article_data/<int:pk>/', views.get_article_data, name='get_article_data'),
+    path('get_last_id/', views.get_last_id, name='get_last_id'),
 
 ]
 

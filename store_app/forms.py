@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from django import forms
-from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category,About,FormulaireClient
+from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category,About,FormulaireClient,FormulaireVente
 
 class UserInfoForm(forms.ModelForm):
     phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Phone'}), required=False)
@@ -116,16 +116,18 @@ class EnregistrerFormulaireArticleForm(forms.ModelForm):
         model = FormulaireArticle
         fields = '__all__'
         widgets = {
-            'ref_article': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'ref_article': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'id': 'id_article'}),
+            'quantite_article': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quantite Article', 'id': 'id_quantite_article', 'min': '0', 'step': '1', 'name' : 'quantite_article'}),
+            
             'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduire le nom','name':'nom'}),
-            'description': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Description Article'}),
+            'description': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Description Article' , 'id': 'id_description', 'name':'description'}),
             'cout_revient_ozaz': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Ozaz', 'id': 'id_cout_revient_ozaz', 'min': '0', 'step': '0.01'}),
             'cout_revient_maallem': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Maallem', 'id': 'id_cout_revient_maallem', 'min': '0', 'step': '0.01'}),
-            'cout_revient_total': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Total', 'id': 'id_cout_revient_total', 'min': '0', 'step': '0.01' , 'readonly': 'readonly'}),
-            'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix', 'id': 'id_prix', 'min': '0', 'step': '0.01'}),
+            'cout_revient_total': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Total', 'id': 'id_cout_revient_total', 'min': '0', 'step': '0.01' , 'readonly': 'readonly', 'name':'cout_revient_total'}),
+            'prix': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix', 'id': 'id_prix', 'min': '0', 'step': '0.01' , 'id': 'id_prix', 'name':'prix'}),
             'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
-            'vendu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'category': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Category', 'required': True, 'name': 'category'}),
+            'vendu': forms.CheckboxInput(attrs={'class': 'form-check-input', 'hidden':'hidden'}),
+            'category': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Category', 'required': True, 'name': 'category', 'id': 'id_category'}),
             'image_charge': forms.ClearableFileInput(attrs={'class': 'form-control', 'name': 'files', 'id': 'formFile'}),
         }
     def __init__(self, *args, **kwargs):
@@ -177,3 +179,97 @@ class EnregistrerFormulaireClientForm(forms.ModelForm):
             'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
             
         }
+
+
+class EnregistrerFormulaireVenteForm(forms.ModelForm):
+    class Meta:
+        model = FormulaireVente
+        fields = '__all__'
+        widgets = {
+            'article_vente': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Article', 'required': True, 'name': 'article', 'id':'id_article'}),
+            'quantite_vente': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Qauntité Vente Article', 'id': 'id_quantite_vente', 'min': '0','name': 'quantite_vente'}),
+
+            'date_vente': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Date Vente', 'type': 'date', 'id': 'id_date_vente'}),
+            'client_vente':forms.Select(attrs={'class': 'form-select', 'placeholder': 'Client Vente', 'required': True, 'name': 'client_vente', 'id':'id_client_vente'}),
+            'description_vente': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Description Vente', 'name':'description', 'id':'id_description'}),
+            'category_vente': forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Categorie Vente', 'name':'category', 'id':'id_category'}),
+
+            'cout_revient_total_vente': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Coût revient Total Vente', 'id': 'id_cout_revient_total_vente', 'min': '0', 'step': '0.01' , 'readonly': 'readonly'}),
+            'prix_vente': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Prix', 'id': 'id_prix', 'name':'prix', 'min': '0', 'step': '0.01'}),
+            'etat_vente': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Etat Vente', 'required': False, 'name': 'etat_vente', 'id':'id_etat_vente'}, choices=FormulaireVente.ETAT_VENTE_CHOICES),
+            'etat_livrer': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Etat Livraison', 'required': False, 'name': 'etat_livrer', 'id':'id_etat_livrer'}, choices=FormulaireVente.ETAT_LIVRER_CHOICES),
+            'etat_payer': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Etat Livraison', 'required': False, 'name': 'etat_payer', 'id':'id_etat_payer'}, choices=FormulaireVente.ETAT_PAYER_CHOICES),
+            'etat_final': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Etat Final', 'required': False, 'name': 'etat_final', 'id':'id_etat_final'}, choices=FormulaireVente.ETAT_FINAL_CHOICES),
+            #'vendu_vente': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id':'id_vendu_vente', 'name': 'vendu_vente'}),
+            'hidden_vendu_vente': forms.CheckboxInput(attrs={'class': 'form-check-input','id':'id_hidden_vendu_vente'}),
+            'marge_pourcentage': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Marge Pourcentage', 'id': 'id_marge_pourcentage', 'name':'marge_pourcentage', 'min': '0', 'step': '0.01','readonly': 'readonly'}),
+            'marge_chifre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Marge Chifre', 'id': 'id_marge_chifre', 'name':'marge_chifre', 'min': '0', 'step': '0.01', 'readonly': 'readonly'}),
+
+            
+            
+            'cree_le': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Cree le', 'type': 'date'}),
+
+        }
+    def clean_quantite_vente(self):
+        quantite_vente = self.cleaned_data.get('quantite_vente')
+        article_vente = self.cleaned_data.get('article_vente')
+
+        if article_vente and quantite_vente > self.cleaned_data.get('article_vente').quantite_article:
+            raise forms.ValidationError(f"La quantité demandée ({quantite_vente}) dépasse la quantité disponible en stock ({self.cleaned_data.get('article_vente').quantite_article}).")
+
+        return quantite_vente
+    
+    """ def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.errors.get('quantite_vente'):
+            self.fields['quantite_vente'].widget.attrs.update({'class': 'is-invalid'}) """
+   
+                                    
+    def is_valid(self):
+        valid = super().is_valid()
+        if valid:
+            quantite_vente = self.cleaned_data.get('quantite_vente')
+            article_vente = self.cleaned_data.get('article_vente')
+            #vendu_vente = self.cleaned_data.get('vendu_vente', False)
+
+            
+            if article_vente and quantite_vente > self.cleaned_data.get('article_vente').quantite_article:
+                return False
+        return valid
+    
+    """ # Esto es en el formulario ModelForm, en el método is_valid o en la vista:
+    def save(self, *args, **kwargs):
+        vendu_vente = self.cleaned_data.get('vendu_vente', False)
+        # 'vendu_vente' ya contendrá True o False basado en el checkbox
+        super().save(*args, **kwargs) """
+    
+    """ def clean(self):
+            cleaned_data = super().clean()
+            vendu_vente = cleaned_data.get("vendu_vente")
+        
+        
+            return cleaned_data """
+    
+    def save(self, commit=True):
+        article_vente = self.cleaned_data.get('article_vente')
+        quantite_vente = self.cleaned_data.get('quantite_vente')
+
+        # Verifica si el formulario se está creando o actualizando
+        if self.instance.pk is None:
+            # Es una nueva instancia, descontar la cantidad
+            # article_vente.quantite_article -= quantite_vente
+            # article_vente.save()
+            pass
+        else:
+            # Es una actualización, manejar el caso aquí
+            original_instance = FormulaireVente.objects.get(pk=self.instance.pk)
+            quantite_vente_originale = original_instance.quantite_vente
+
+            # Si la cantidad cambió, ajusta el inventario
+            if quantite_vente != quantite_vente_originale:
+                # difference = quantite_vente - quantite_vente_originale
+                # article_vente.quantite_article -= difference
+                # article_vente.save()
+                pass
+
+        return super().save(commit=commit)

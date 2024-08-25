@@ -42,21 +42,39 @@
                                             
                       {% endif %}
                       <br><br>
+                      Qte Disponible: {{ product.quantite_product }}
+                      <br><br>
                       <div class="row justify-content-center">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                         Quantité:
                         </div>
-                        <div class="col-md-2">
+                        <!-- <div class="col-md-2">
+                          <select class="form-select" aria-label="Default select example" id="qty-cart">
+                              {% for i in quantity_range %}
+                                  <option value="{{ i }}">{{ i }}</option>
+                              {% endfor %}
+                          </select>
+                      </div> -->
+                        <div class="col-md-3">
                           <select class="form-select" aria-label="Default select example" id="qty-cart">
                         
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
                             <option value="4">4</option>
-                            <option value="4">5</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
                           </select>
                         </div>
+                        
+                        
                       </div>
+                      
+                      
                    
                     </center>
                       <br>

@@ -1,0 +1,287 @@
+{% extends 'store_app/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    
+    <style>
+        /* Estilos para el borde y el fondo del input */
+        .input-invalid {
+            border: 1px solid #dc3545;  /* Borde rojo */
+            background-color: #f8d7da;  /* Fondo rojo claro */
+        }
+    
+        .input-valid {
+            border: 1px solid #28a745;  /* Borde verde */
+            background-color: #d4edda;  /* Fondo verde claro */
+        }
+
+        input.is-invalid {
+            border-color: red;
+            color: red;
+        }
+        .form-error {
+        color: red;
+        font-weight: bold;
+        }
+
+    </style>
+  
+    
+<h1>Enregister Formulaire Vente</h1>
+
+    <form method="POST" enctype="multipart/form-data" id="registroForm">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_ajustado_display">ID Original:</label>
+            <input type="text" id="id_ajustado_display" class="form-control" readonly>
+          </div>
+        <!-- {{ form.as_p }} -->
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="form-error">
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <!-- <input type="hidden" id="id_hidden_vendu_vente" name="hidden_vendu_vente" value="True"> -->
+
+
+        <input type="hidden" id="id_ajustado" name="id_ajustado" value="">
+        <input type="submit" value="Guardar Registro" class="btn btn-primary mb-5 w-100">
+    </form>
+</div> 
+    
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var etatVente = document.getElementById('id_etat_vente');
+        var etatLivrer = document.getElementById('id_etat_livrer');
+        var etatPayer = document.getElementById('id_etat_payer');
+        var etatFinal = document.getElementById('id_etat_final');
+        //var venduVente = document.getElementById('id_vendu_vente');
+        var labelEtatLivrer = document.querySelector('label[for="id_etat_livrer"]');
+        var labelEtatPayer = document.querySelector('label[for="id_etat_payer"]');
+        var labelEtatFinal = document.querySelector('label[for="id_etat_final"]');
+        //var labelVenduVente = document.querySelector('label[for="id_vendu_vente"]');
+        var hiddenVenduVente = document.getElementById('id_hidden_vendu_vente');
+        var labelhiddenVenduVente = document.querySelector('label[for="id_hidden_vendu_vente"]');
+
+        
+       
+
+
+    
+        function toggleEtatVente() {
+            if (etatVente.value === 'Vendu' && etatLivrer.value !== 'Livrer') {
+                etatLivrer.disabled = false;
+                etatPayer.disabled = true;
+                etatFinal.disabled = true;
+                hiddenVenduVente.disabled = true;
+                hiddenVenduVente.checked = false;
+    
+                etatLivrer.style.display = 'block';  // Mostrar campos
+                etatPayer.style.display = 'none';
+                etatFinal.style.display = 'none';
+                hiddenVenduVente.style.display = 'none';
+                labelEtatLivrer.style.display = 'block';  // Mostrar labels
+                labelEtatPayer.style.display = 'none';
+                labelEtatFinal.style.display = 'none';
+                labelhiddenVenduVente.style.display = 'none';
+    
+            } else if (etatVente.value === 'Vendu' && etatLivrer.value === 'Livrer' && etatPayer.value !== 'Payer') {
+                etatLivrer.disabled = false;
+                etatPayer.disabled = false;
+                etatFinal.disabled = true;
+                hiddenVenduVente.disabled = true;
+                hiddenVenduVente.checked = false;
+    
+                etatLivrer.style.display = 'block';  // Mostrar campos
+                etatPayer.style.display = 'block';
+                etatFinal.style.display = 'none';
+                hiddenVenduVente.style.display = 'none';
+                labelEtatLivrer.style.display = 'block';  // Mostrar labels
+                labelEtatPayer.style.display = 'block';
+                labelEtatFinal.style.display = 'none';
+                labelhiddenVenduVente.style.display = 'none';
+    
+            } else if (etatVente.value === 'Vendu' && etatLivrer.value === 'Livrer' && etatPayer.value === 'Payer') {
+                etatLivrer.disabled = false;
+                etatPayer.disabled = false;
+                etatFinal.disabled = false;
+                hiddenVenduVente.disabled = false;
+                hiddenVenduVente.checked = true;
+    
+                etatLivrer.style.display = 'block';  // Mostrar campos
+                etatPayer.style.display = 'block';
+                etatFinal.style.display = 'block';
+                hiddenVenduVente.style.display = 'block';
+                labelEtatLivrer.style.display = 'block';  // Mostrar labels
+                labelEtatPayer.style.display = 'block';
+                labelEtatFinal.style.display = 'block';
+                labelhiddenVenduVente.style.display = 'block';
+                
+    
+            } else {
+                etatLivrer.disabled = true;
+                etatPayer.disabled = true;
+                etatFinal.disabled = true;
+                hiddenVenduVente.disabled = true;
+                hiddenVenduVente.checked = false;
+    
+                etatLivrer.value = '';  // Clear the value when disabled
+                etatPayer.value = '';   // Clear the value when disabled
+                etatFinal.value = '';   // Clear the value when disabled
+                //venduVente.value = '';
+                etatLivrer.style.display = 'none';  // Ocultar campos
+                etatPayer.style.display = 'none';
+                etatFinal.style.display = 'none';
+                hiddenVenduVente.style.display = 'none';
+                labelEtatLivrer.style.display = 'none';  // Ocultar labels
+                labelEtatPayer.style.display = 'none';
+                labelEtatFinal.style.display = 'none';
+                labelhiddenVenduVente.style.display = 'none';
+            }
+            
+        }
+    
+        toggleEtatVente();  // Llamar la función al cargar la página
+    
+        etatVente.addEventListener('change', toggleEtatVente);
+        etatLivrer.addEventListener('change', toggleEtatVente);
+        etatPayer.addEventListener('change', toggleEtatVente);
+        etatFinal.addEventListener('change', toggleEtatVente);
+        /* venduVente.addEventListener('change', function() {
+        hiddenVenduVente.value = venduVente.checked ? "True" : "False";
+        });
+ */
+        
+
+        
+    });
+
+    
+
+    $(document).ready(function() {
+        // Hacer una llamada AJAX al cargar la página para obtener el último ID....
+    $.ajax({
+        url: '/get_last_id/', // Ruta en tu servidor que devuelve el último ID
+        method: 'GET',
+        success: function(data) {
+          // Incrementar el último ID en 2000
+          var adjustedId = parseInt(data.last_id) + 1;
+          // Establecer el valor del campo de solo lectura con el ID ajustado
+          $('#id_ajustado_display').val(adjustedId);
+        },
+        error: function(error) {
+          console.log('Error:', error);
+        }
+      });
+
+    $('#id_article').change(function() {
+            var articleId = $(this).val();
+            console.log(" le id es : " + articleId);
+            if (articleId) {
+                $.ajax({
+                    url: '/get_article_data/' + articleId + '/',
+                    method: 'GET',
+                    success: function(data) {
+                        $('#id_description').val(data.description);
+                        $('#id_category').val(data.category);
+                        $('#id_prix').val(data.prix);
+                        $('#id_cout_revient_total_vente').val(data.cout_revient_total);
+
+                        console.log("cout rev :" + data.cout_revient_total );
+
+
+                        var adjustedId = parseInt(articleId) + 1;
+                        $('#id_ajustado').val(adjustedId);
+                        $('#id_ajustado_display').val(adjustedId);
+
+                        // Asegurarse de que los valores relevantes están cargados
+                    setTimeout(function() {
+                        calcularMargen();
+                    }, 100);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+        });
+
+        function calcularMargen() {
+            // Capturamos los valores de los campos de entrada
+            const prixVente = parseFloat(document.getElementById('id_prix').value) || 0;
+            const coutRevientTotal = parseFloat(document.getElementById('id_cout_revient_total_vente').value) || 0;
+            const quantiteVente = parseFloat(document.getElementById('id_quantite_vente').value) || 1;  // Asumiendo que el ID del campo de cantidad es 'id_quantite_vente'
+            const margeChifreVente = parseFloat(document.getElementById('id_marge_chifre').value) || 1;  // Asumiendo que el ID del campo de cantidad es 'id_quantite_vente'
+            var venduVente = document.getElementById('id_vendu_vente');
+
+
+            console.log("Prix de vente: " + prixVente);
+            console.log("Coût de revient total: " + coutRevientTotal);
+
+            const prixVenteTotal = prixVente * quantiteVente;
+            const coutRevientTotalVente = coutRevientTotal * quantiteVente;
+
+
+            // Calculamos los márgenes
+            const margeChifre = prixVenteTotal - coutRevientTotalVente;
+            const margePourcentage = prixVenteTotal !== 0 ? (margeChifre / prixVenteTotal) * 100 : 0;
+
+            // Asignamos los valores calculados a los campos correspondientes
+            document.getElementById('id_prix').value = prixVenteTotal.toFixed(2);
+            document.getElementById('id_cout_revient_total_vente').value = coutRevientTotalVente.toFixed(2);
+            
+
+       
+            document.getElementById('id_marge_chifre').value = margeChifre.toFixed(2);
+            document.getElementById('id_marge_pourcentage').value = margePourcentage.toFixed(2);
+
+            //console.log("vendu vente : " + venduVente.checked);
+
+            console.log("marge chifre: " + margeChifre);
+            console.log("marge pourcentaage : " + margePourcentage);
+
+            
+        }
+
+        // Verificamos que los campos existen antes de agregar los eventos
+        const prixVenteField = document.getElementById('id_prix');
+        const coutRevientTotalField = document.getElementById('id_cout_revient_total_vente');
+        const quantiteVenteField = document.getElementById('id_quantite_vente'); // Asumiendo que el campo tiene este ID
+        const margeChifreField = document.getElementById('id_marge_chifre');
+
+
+     /*    if (prixVenteField && coutRevientTotalField) {
+            prixVenteField.addEventListener('input', calcularMargen);
+            coutRevientTotalField.addEventListener('input', calcularMargen);
+        } else {
+            console.log("Campos 'id_prix' o 'id_cout_revient_total_vente' no encontrados.");
+        } */
+
+            // Agregamos los eventos de cambio a los campos
+            if (prixVenteField && coutRevientTotalField && quantiteVenteField && margeChifreField) {
+                prixVenteField.addEventListener('input', calcularMargen);
+                coutRevientTotalField.addEventListener('input', calcularMargen);
+                quantiteVenteField.addEventListener('input', calcularMargen); // Añadimos el evento para la cantidad
+                margeChifreField.addEventListener('input', calcularMargen); // Añadimos el evento para la cantidad
+
+            } else {
+                console.log("Campos 'id_prix', 'id_cout_revient_total_vente' o 'id_quantite_vente' o 'id_marge_chifre' no encontrados .");
+            }
+    });
+
+   
+    </script>
+    
+  
+{% endblock %}
