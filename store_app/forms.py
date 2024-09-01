@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPassw
 from django import forms
 from .models import Profile,Charge,FormulaireCharge,FormulaireArticle,Category,About,FormulaireClient,FormulaireVente
 
+
 class UserInfoForm(forms.ModelForm):
     phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Phone'}), required=False)
     address1 = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder': 'Address 1'}), required=False)
@@ -144,8 +145,11 @@ class EnregistrerFormulaireArticleForm(forms.ModelForm):
         if last_code and last_code.id is not None:
             next_code = f"OZ{(last_code.id + 1):03d}"
         else:
-            next_code = 2205
+            #next_code = 2205
+            next_code = f"OZ{(0 + 1):03d}"
         self.fields['ref_article'].initial = next_code
+    
+    
 
 class EnregistrerCategoryForm(forms.ModelForm):
     class Meta:

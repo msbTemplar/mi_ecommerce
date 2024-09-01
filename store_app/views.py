@@ -37,6 +37,8 @@ from calendar import HTMLCalendar
 from datetime import datetime
 import mimetypes
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import connection
+
 
 # Create your views here.
 
@@ -304,7 +306,20 @@ def register_user(request):
     else:
         context={'form':form}
         return render(request, 'store_app/register.html',context)
-    
+
+def reset_table_view(request):
+    table_name = 'store_app_formulairearticle'
+    table_name_product = 'store_app_product'
+    reset_table_and_id_counter(table_name)
+    reset_table_and_id_counter(table_name_product)
+    return HttpResponse(f'Tabla {table_name} reiniciada con éxito. y {table_name_product} tambien')
+
+def reset_table_and_id_counter(table_name):
+    with connection.cursor() as cursor:
+        # Vaciar la tabla
+        cursor.execute(f"DELETE FROM {table_name};")
+        # Reiniciar el contador de ID
+        cursor.execute(f"DELETE FROM sqlite_sequence WHERE name='{table_name}';")  
 
 def enregistrer_charge_view(request):
     if request.method == 'POST':
